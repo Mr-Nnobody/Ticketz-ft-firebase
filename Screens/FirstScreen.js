@@ -5,7 +5,7 @@ import {
   StyleSheet,
   ImageBackground,
 } from "react-native";
-import CustomButton from "../../components/CustomButton";
+import CustomButton from "../components/CustomButton";
 
 const FirstScreen = () => {
   const handleLogin = () => {

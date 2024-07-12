@@ -1,3 +1,5 @@
+//TODO: swap config files
+
 import * as firebase from "firebase";
 import "@firebase/auth";
 import "@firebase/firestore";

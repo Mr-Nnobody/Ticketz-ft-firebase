@@ -52,6 +52,7 @@ const PassengerLoginScreen = () => {
           value={password}
           onChangeText={setPassword}
           autoCorrect={false}
+          autoCapitalize="none"
           secureTextEntry={!showPassword} //toggle secure entry based on showpassword state
           style={styles.inputcontainer}
         />
