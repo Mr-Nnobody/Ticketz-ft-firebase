@@ -9,17 +9,31 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; //import the eye icon
 import CustomButton from "../../components/CustomButton";
+import { app } from "../../firebase/config";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
-const AgencyLoginScreen = () => {
+const ALoginScreen = () => {
+  const auth = getAuth();
   const [Email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = (navigation) => {
     // Handle login logic here
+    createUserWithEmailAndPassword(auth, email, password, agencyName)
+      .then((userCredentials) => {
+        const user = userCredentials.user;
+        navigation.navigate("AHome");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        //.....
+      });
   };
   const handleSignup = () => {
     // Handle signup logic here
+    navigation.navigate("AHome");
   };
   const handleForgottenPassword = () => {
     // Handle Forgotten password logic here
@@ -107,7 +121,7 @@ const AgencyLoginScreen = () => {
   );
 };
 
-export default AgencyLoginScreen;
+export default ALoginScreen;
 
 const styles = StyleSheet.create({
   container: {

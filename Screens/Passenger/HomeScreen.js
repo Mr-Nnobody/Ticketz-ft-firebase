@@ -20,6 +20,6 @@ const styles = StyleSheet.create({
   },
   header_container: {
     flex: 1,
-    backgroundColor: "#5272ff",
+    backgroundColor: "#3498DB",
   },
 });

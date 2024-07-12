@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; //import the eye icon
 import CustomButton from "../../components/CustomButton";
+import { app } from "../../firebase/config";
 
-const PassengerLoginScreen = () => {
+const PassengerLoginScreen = ({ navigation }) => {
   const [PhoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -20,6 +21,7 @@ const PassengerLoginScreen = () => {
   };
   const handleSignup = () => {
     // Handle signup logic here
+    navigation.navigate("Registration");
   };
   const handleForgottenPassword = () => {
     // Handle Forgotten password logic here
@@ -28,15 +30,16 @@ const PassengerLoginScreen = () => {
     <View style={styles.container}>
       {/* header image */}
       <ImageBackground
-        source={require("../../assets/icon1.png")}
+        source={require("../../assets/ideal_logo.png")}
         style={styles.Image}
       />
-      <Text style={styles.bold}>𝕋𝕚𝕔𝕜𝕖𝕥𝕫</Text>
+      <Text style={styles.bold}>Ticketz</Text>
       <View>
         {/* Getting Phone number from phone number field*/}
         <Text>Phone Number:</Text>
         <TextInput
           placeholder="Enter Phone Number"
+          placeholderTextColor="#5272ff"
           value={PhoneNumber}
           maxLength={9}
           onChangeText={setPhoneNumber}
@@ -49,6 +52,7 @@ const PassengerLoginScreen = () => {
         <Text>Password:</Text>
         <TextInput
           placeholder="Enter Password"
+          placeholderTextColor="#5272ff"
           value={password}
           onChangeText={setPassword}
           autoCorrect={false}

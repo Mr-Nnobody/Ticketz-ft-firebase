@@ -7,21 +7,23 @@ import {
 } from "react-native";
 import CustomButton from "../components/CustomButton";
 
-const FirstScreen = () => {
-  const handleLogin = () => {
+const FirstScreen = ({ navigation }) => {
+  const handleLogin = (navigation) => {
     // Handle login logic here
+    navigation.navigate("LoginScreen");
   };
   const handleSignup = () => {
     // Handle signup logic here
+    navigation.navigate("RegistrationScreen");
   };
 
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("../../assets/lewis.png")}
+        source={require("../assets/ideal_logo.png")}
         style={styles.Image}
       />
-      <Text style={styles.bold}>𝕋𝕚𝕔𝕜𝕖𝕥𝕫</Text>
+      <Text style={styles.bold}>Ticketz</Text>
 
       <View>
         <CustomButton
@@ -59,24 +61,24 @@ const styles = StyleSheet.create({
   },
   Image: {
     marginTop: 170,
-    width: 100,
-    height: 100,
+    width: 90,
+    height: 90,
     resizeMode: "contain",
   },
 
   bold: {
     fontWeight: "bolds",
     fontSize: 50,
-    fontStyle: "italic",
+    fontStyle: "normal",
     marginTop: 10,
     marginBottom: 260,
-    color: "#17ff",
+    color: "#3498DB",
     letterSpacing: 10,
   },
   loginButtonstyle: {
     marginTop: 20,
     marginBottom: 20,
-    backgroundColor: "#17ff",
+    backgroundColor: "#3498DB",
     width: 300,
     color: "white",
     padding: 12,
