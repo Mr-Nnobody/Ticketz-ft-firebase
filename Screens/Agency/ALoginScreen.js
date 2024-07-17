@@ -9,31 +9,77 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; //import the eye icon
 import CustomButton from "../../components/CustomButton";
-import { app } from "../../firebase/config";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { showMessage } from "react-native-flash-message";
+import { database } from "../../firebase/config";
 
-const ALoginScreen = () => {
+const ALoginScreen = ({ navigation }) => {
   const auth = getAuth();
   const [Email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (navigation) => {
+  const handleLogin = () => {
     // Handle login logic here
-    createUserWithEmailAndPassword(auth, email, password, agencyName)
+    // signInWithEmailAndPassword(auth, Email, password)
+    //   .then((userCredentials) => {
+    //     const user = userCredentials.user;
+    //     navigation.navigate("AHome", { user });
+    //     showMessage({
+    //       message: "Welcome " + user.email,
+    //       type: "success",
+    //       duration: 2000,
+    //     });
+    //   })
+    //   .catch((error) => {
+    //     showMessage({
+    //       message: error.message,
+    //       type: "warning",
+    //       duration: 2000,
+    //     });
+    //     //.....
+    //   });
+
+    //ensuring that when signing in, user data is read from db.
+    signInWithEmailAndPassword(auth, Email, password)
       .then((userCredentials) => {
-        const user = userCredentials.user;
-        navigation.navigate("AHome");
+        const uid = userCredentials.user.uid;
+        const agencyRef = collection(database, "agencies");
+        agencyRef
+          .doc(uid)
+          .get()
+          .then((firestoreDocument) => {
+            if (!firestoreDocument.exists) {
+              showMessage({
+                message: "User does not exist",
+                type: "danger",
+                duration: 4000,
+              });
+              return;
+            }
+            const user = firestoreDocument.data();
+            navigation.navigate("AHome", { user });
+          })
+          .catch((error) => {
+            showMessage({
+              message: error.message,
+              type: "danger",
+              duration: 4000,
+            });
+          });
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
+        showMessage({
+          message: "Invalid email or password ",
+          type: "danger",
+          duration: 4000,
+        });
         //.....
       });
   };
   const handleSignup = () => {
     // Handle signup logic here
-    navigation.navigate("AHome");
+    navigation.navigate("ARegistration");
   };
   const handleForgottenPassword = () => {
     // Handle Forgotten password logic here
@@ -42,14 +88,14 @@ const ALoginScreen = () => {
     <View style={styles.container}>
       {/* header image */}
       <ImageBackground
-        source={require("../../assets/bus.png")}
+        source={require("../../assets/ideal_logo.png")}
         style={styles.Image}
       />
       <View>
         {/* Getting email from email field*/}
-        <Text>Email:</Text>
+        {/* <Text>Email:</Text> */}
         <TextInput
-          placeholder="Enter Email Address"
+          placeholder="E-mail"
           value={Email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -58,9 +104,9 @@ const ALoginScreen = () => {
       </View>
       {/*  Getting text from password field*/}
       <View>
-        <Text>Password:</Text>
+        {/* <Text>Password:</Text> */}
         <TextInput
-          placeholder="Enter Password"
+          placeholder="Password"
           value={password}
           onChangeText={setPassword}
           autoCorrect={false}
@@ -73,15 +119,7 @@ const ALoginScreen = () => {
           size={24}
           color="gray"
           onPress={() => setShowPassword(!showPassword)}
-          style={{ position: "absolute", right: 10, top: 27 }}
-        />
-      </View>
-      {/* Login button */}
-      <View>
-        <CustomButton
-          title="Login"
-          onPress={handleLogin}
-          style={styles.loginButtonstyle}
+          style={{ position: "absolute", right: 10, top: 15 }}
         />
       </View>
 
@@ -96,26 +134,28 @@ const ALoginScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* line Divider */}
-      <View style={styles.rowflex}>
-        <View style={{ borderBottomWidth: 0.5, borderColor: "gray" }}>
-          <Text style={{ width: 100 }}></Text>
-        </View>
-        <View>
-          <Text style={{ color: "gray", marginTop: 15, padding: 5 }}>Or</Text>
-        </View>
-        <View style={{ borderBottomWidth: 0.5, borderColor: "gray" }}>
-          <Text style={{ width: 100 }}></Text>
-        </View>
-      </View>
-
-      {/* Signup button */}
+      {/* Login button */}
       <View>
         <CustomButton
-          style={styles.signupButtonstyle}
-          title="Sign Up"
-          onPress={handleSignup}
+          title="Login"
+          onPress={handleLogin}
+          style={styles.loginButtonstyle}
         />
+      </View>
+      <View style={styles.footer}>
+        <View>
+          <Text style={{ padding: 5, fontSize: 18, marginTop: 20 }}>
+            {" "}
+            Already have an account?
+          </Text>
+        </View>
+        <View>
+          <TouchableOpacity activeOpacity={0.4} onPress={handleSignup}>
+            <View>
+              <Text style={styles.signupbutton}>Sign Up</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -126,48 +166,41 @@ export default ALoginScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 16,
   },
   inputcontainer: {
     borderColor: "gray",
-    marginBottom: 20,
+    marginBottom: 30,
     borderWidth: 2,
-    padding: 5,
+    padding: 10,
+    paddingLeft: 20,
     width: 300,
     borderRadius: 10,
+    backgroundColor: "white",
+    overflow: "hidden",
   },
   loginButtonstyle: {
     marginTop: 20,
-    backgroundColor: "#17ff",
-    width: 200,
+    backgroundColor: "#3498DB", //"#788eec",
+    width: 300,
     color: "white",
     padding: 10,
     borderRadius: 10,
-  },
-  signupButtonstyle: {
-    backgroundColor: "green",
-    marginTop: 30,
-    width: 200,
-    color: "white",
-    padding: 10,
-    borderRadius: 10,
-    borderBottomWidth: 1,
-    borderColor: "gray",
+    fontWeight: "bold",
   },
   Image: {
-    marginTop: -150,
-    marginBottom: 30,
-    width: 360,
-    height: 350,
-    resizeMode: "contain",
+    marginTop: 70,
+    marginBottom: 80,
+    width: 100,
+    height: 100,
+    alignSelf: "center",
   },
   text: {
-    color: "red",
+    color: "#17ff",
     fontWeight: "bold",
-    marginTop: 15,
-    marginBottom: 5,
+    marginTop: -10,
+    marginLeft: 150,
+    marginBottom: 15,
     fontSize: 16,
   },
   rowflex: {
@@ -176,5 +209,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
     marginBottom: 5,
+  },
+  signupbutton: {
+    fontSize: 18,
+    marginTop: 20,
+    fontWeight: "bold",
+    color: "#17ff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#17ff",
+  },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignContent: "space-between",
   },
 });

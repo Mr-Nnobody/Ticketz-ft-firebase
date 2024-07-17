@@ -1,3 +1,4 @@
+//TODO: need to only adjust icon.
 import {
   View,
   Text,
@@ -5,7 +6,7 @@ import {
   StyleSheet,
   ImageBackground,
 } from "react-native";
-import CustomButton from "../components/CustomButton";
+import CustomButton from "../../components/CustomButton";
 
 const FirstScreen = ({ navigation }) => {
   const handleLogin = (navigation) => {
@@ -20,7 +21,7 @@ const FirstScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("../assets/ideal_logo.png")}
+        source={require("../../assets/ideal_logo.png")}
         style={styles.Image}
       />
       <Text style={styles.bold}>Ticketz</Text>

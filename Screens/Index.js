@@ -1,44 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import CustomButton from "../components/CustomButton";
 
-const Type = () => {
-  const [isTextTyped, setIsTextTyped] = useState(false);
-  const [typedText, setTypedText] = useState("");
-  const originalText = "Welcome to Ticketz";
-  const speed = 100;
-
-  const handleNext = () => {
+const Index = ({ navigation }) => {
+  const handleAgency = () => {
     //next logic goes here
+    navigation.navigate("ALoginScreen");
   };
 
-  useEffect(() => {
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-      if (currentIndex < originalText.length) {
-        setTypedText(originalText.slice(0, currentIndex + 1));
-        currentIndex++;
-      } else {
-        clearInterval(interval);
-      }
-    }, speed); // Adjust the typing speed (milliseconds per character)
-    setTimeout(() => {
-      setIsTextTyped(true);
-    }, speed * originalText.length);
-  }, []);
+  const handlePassenger = () => {
+    //next logic goes here
+    navigation.navigate("LoginScreen");
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>{typedText}</Text>
+      <Text style={styles.text}>Sign Up or Login as:</Text>
 
-      {isTextTyped && (
-        <TouchableOpacity activeOpacity={0.4} onPress={handleNext}>
-          <Text style={styles.next}>Next</Text>
-        </TouchableOpacity>
-      )}
+      <CustomButton
+        style={styles.button}
+        title="AGENCY"
+        onPress={handleAgency}
+      />
+      <CustomButton
+        style={styles.button}
+        title="PASSENGER"
+        onPress={handlePassenger}
+      />
     </View>
   );
 };
-export default Type;
+export default Index;
 
 const styles = StyleSheet.create({
   container: {
@@ -50,17 +42,15 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "normal",
     textAlign: "center",
-    color: "#17ff",
-
-    marginBottom: -50,
+    color: "#3498DB",
+    marginTop: -100,
+    marginBottom: 100,
   },
-  next: {
-    color: "white",
-    backgroundColor: "#17ff",
-    padding: 8,
-    borderRadius: 10,
-    marginTop: 400,
-    marginBottom: -300,
-    marginLeft: 250,
+  button: {
+    backgroundColor: "#3498DB",
+    padding: 10,
+    width: 300,
+    borderRadius: 100,
+    margin: 30,
   },
 });

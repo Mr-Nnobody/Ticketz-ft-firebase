@@ -1,10 +1,12 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useRoute } from "@react-navigation/native";
 
 const HomeScreen = () => {
+  const route = useRoute();
   return (
     <View>
       <View style>
-        <Text>HomeScreen</Text>
+        <Text>HomeScreen fuck{route.params?.data}</Text>
       </View>
     </View>
   );

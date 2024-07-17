@@ -9,23 +9,65 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; //import the eye icon
 import CustomButton from "../../components/CustomButton";
-import { app } from "../../firebase/config";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { showMessage } from "react-native-flash-message";
+import { collection } from "firebase/firestore";
+import { database } from "../../firebase/config";
 
-const PassengerLoginScreen = ({ navigation }) => {
-  const [PhoneNumber, setPhoneNumber] = useState("");
+const ALoginScreen = ({ navigation }) => {
+  const auth = getAuth();
+  const [Email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
     // Handle login logic here
+    //ensuring that when signing in, user data is read from db.
+    signInWithEmailAndPassword(auth, Email, password)
+      .then((userCredentials) => {
+        const uid = userCredentials.user.uid;
+        const usersRef = collection(database, "users");
+        usersRef
+          .doc(uid)
+          .get()
+          .then((firestoreDocument) => {
+            if (!firestoreDocument.exists) {
+              showMessage({
+                message: "User does not exist",
+                type: "danger",
+                duration: 4000,
+              });
+              return;
+            }
+            const user = firestoreDocument.data();
+            navigation.navigate("Home", { user });
+          })
+          .catch((error) => {
+            showMessage({
+              message: error.message,
+              type: "danger",
+              duration: 4000,
+            });
+          });
+      })
+      .catch((error) => {
+        showMessage({
+          message: error.message,
+          type: "danger",
+          duration: 4000,
+        });
+        //.....
+      });
   };
   const handleSignup = () => {
     // Handle signup logic here
     navigation.navigate("Registration");
   };
+
   const handleForgottenPassword = () => {
     // Handle Forgotten password logic here
   };
+
   return (
     <View style={styles.container}>
       {/* header image */}
@@ -33,30 +75,25 @@ const PassengerLoginScreen = ({ navigation }) => {
         source={require("../../assets/ideal_logo.png")}
         style={styles.Image}
       />
-      <Text style={styles.bold}>Ticketz</Text>
       <View>
-        {/* Getting Phone number from phone number field*/}
-        <Text>Phone Number:</Text>
+        {/* Getting email from email field*/}
+        {/* <Text>Email:</Text> */}
         <TextInput
-          placeholder="Enter Phone Number"
-          placeholderTextColor="#5272ff"
-          value={PhoneNumber}
-          maxLength={9}
-          onChangeText={setPhoneNumber}
-          keyboardType="phone-pad"
+          placeholder="E-mail"
+          value={Email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
           style={styles.inputcontainer}
         />
       </View>
       {/*  Getting text from password field*/}
       <View>
-        <Text>Password:</Text>
+        {/* <Text>Password:</Text> */}
         <TextInput
-          placeholder="Enter Password"
-          placeholderTextColor="#5272ff"
+          placeholder="Password"
           value={password}
           onChangeText={setPassword}
           autoCorrect={false}
-          autoCapitalize="none"
           secureTextEntry={!showPassword} //toggle secure entry based on showpassword state
           style={styles.inputcontainer}
         />
@@ -66,15 +103,7 @@ const PassengerLoginScreen = ({ navigation }) => {
           size={24}
           color="gray"
           onPress={() => setShowPassword(!showPassword)}
-          style={{ position: "absolute", right: 10, top: 27 }}
-        />
-      </View>
-      {/* Login button */}
-      <View>
-        <CustomButton
-          title="Login"
-          onPress={handleLogin}
-          style={styles.loginButtonstyle}
+          style={{ position: "absolute", right: 10, top: 15 }}
         />
       </View>
 
@@ -89,78 +118,73 @@ const PassengerLoginScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* line Divider */}
-      <View style={styles.rowflex}>
-        <View style={{ borderBottomWidth: 0.5, borderColor: "gray" }}>
-          <Text style={{ width: 100 }}></Text>
-        </View>
-        <View>
-          <Text style={{ color: "gray", marginTop: 15, padding: 5 }}>Or</Text>
-        </View>
-        <View style={{ borderBottomWidth: 0.5, borderColor: "gray" }}>
-          <Text style={{ width: 100 }}></Text>
-        </View>
-      </View>
-
-      {/* Signup button */}
+      {/* Login button */}
       <View>
         <CustomButton
-          style={styles.signupButtonstyle}
-          title="Sign Up"
-          onPress={handleSignup}
+          title="Login"
+          onPress={handleLogin}
+          style={styles.loginButtonstyle}
         />
+      </View>
+      <View style={styles.footer}>
+        <View>
+          <Text style={{ padding: 5, fontSize: 18, marginTop: 20 }}>
+            {" "}
+            Already have an account?
+          </Text>
+        </View>
+        <View>
+          <TouchableOpacity activeOpacity={0.4} onPress={handleSignup}>
+            <View>
+              <Text style={styles.signupbutton}>Sign Up</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 };
 
-export default PassengerLoginScreen;
+export default ALoginScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 16,
   },
   inputcontainer: {
     borderColor: "gray",
-    marginBottom: 20,
+    marginBottom: 30,
     borderWidth: 2,
-    padding: 5,
+    padding: 10,
+    paddingLeft: 20,
     width: 300,
     borderRadius: 10,
+    backgroundColor: "white",
+    overflow: "hidden",
   },
   loginButtonstyle: {
     marginTop: 20,
-    backgroundColor: "#36454F",
-    width: 200,
+    backgroundColor: "#3498DB", //"#788eec",
+    width: 300,
     color: "white",
     padding: 10,
     borderRadius: 10,
-  },
-  signupButtonstyle: {
-    backgroundColor: "green",
-    marginTop: 30,
-    width: 200,
-    color: "white",
-    padding: 10,
-    borderRadius: 10,
-    borderBottomWidth: 1,
-    borderColor: "gray",
+    fontWeight: "bold",
   },
   Image: {
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 70,
+    marginBottom: 80,
     width: 100,
     height: 100,
-    resizeMode: "contain",
+    alignSelf: "center",
   },
   text: {
-    color: "red",
+    color: "#17ff",
     fontWeight: "bold",
-    marginTop: 15,
-    marginBottom: 5,
+    marginTop: -10,
+    marginLeft: 150,
+    marginBottom: 15,
     fontSize: 16,
   },
   rowflex: {
@@ -170,12 +194,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 5,
   },
-  bold: {
-    fontWeight: "normal",
-    fontSize: 50,
-    fontStyle: "italic",
-    marginBottom: 70,
-    color: "#36454F",
-    letterSpacing: 10,
+  signupbutton: {
+    fontSize: 18,
+    marginTop: 20,
+    fontWeight: "bold",
+    color: "#17ff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#17ff",
+  },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignContent: "space-between",
   },
 });
