@@ -1,12 +1,19 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Image,
+  SafeAreaView,
+  TouchableOpacity,
+} from "react-native";
 import CustomButton from "../../components/CustomButton";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { showMessage } from "react-native-flash-message";
-import { collection } from "firebase/firestore";
+import { collection, setDoc, doc } from "firebase/firestore";
 import { database } from "../../firebase/config";
 
 const ARegistrationScreen = ({ navigation }) => {
@@ -19,6 +26,14 @@ const ARegistrationScreen = ({ navigation }) => {
 
   const handleSignup = () => {
     // registration logic here
+    if (email === "" || password === "" || agencyName === "") {
+      showMessage({
+        message: "Please Enter all Fields",
+        type: "danger",
+        duration: 4000,
+      });
+      return;
+    }
     if (password !== confirmPassword) {
       showMessage({
         message: "Passwords don't match ",
@@ -29,29 +44,27 @@ const ARegistrationScreen = ({ navigation }) => {
     }
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
-        const uid = userCredentials.user.uid;
+        const user = userCredentials._tokenResponse.email;
+        const uid = auth.currentUser.uid;
+        //const agencyRef = collection(database, "agencies", uid);
         const data = {
-          id: uid,
-          email,
-          agencyName,
+          email: user,
+          agencyName: agencyName,
         };
-        const agencyRef = collection(database, "agencies");
-        agencyRef
-          .doc(uid)
-          .set(data)
+        setDoc(doc(database, "agencies", uid), data)
           .then(() => {
             showMessage({
               message: "Account Created Successfully",
               type: "success",
               duration: 4000,
             });
-            navigation.navigate("AHome", { data });
+            navigation.replace("Amain", { data: data });
           })
           .catch((error) => {
             showMessage({
               message: "Error creating db account: " + error.message,
               type: "danger",
-              duration: 4000,
+              duration: 6000,
             });
           });
       })
@@ -69,96 +82,100 @@ const ARegistrationScreen = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAwareScrollView>
-      <View style={styles.container}>
-        <Image
-          style={styles.image}
-          source={require("../../assets/ideal_logo.png")}
-        />
+    <SafeAreaView
+      style={{ alignItems: "center", backgroundColor: "#EEEEEE", padding: 10 }}
+    >
+      <KeyboardAwareScrollView>
+        <View style={styles.container}>
+          <Image
+            style={styles.image}
+            source={require("../../assets/ideal_logo.png")}
+          />
 
-        <View>
           <View>
-            {/* <Text>Agency Name:</Text> */}
+            <View>
+              {/* <Text>Agency Name:</Text> */}
+              <TextInput
+                style={styles.inputcontainer}
+                placeholder="Agency Name"
+                placeholderTextColor="gray"
+                value={agencyName}
+                onChangeText={setAgencyName}
+                autoCapitalize="words"
+              />
+            </View>
+          </View>
+          <View>
+            {/* <Text>Email:</Text> */}
             <TextInput
-              style={styles.inputcontainer}
-              placeholder="Agency Name"
+              placeholder="E-mail"
               placeholderTextColor="gray"
-              value={agencyName}
-              onChangeText={setAgencyName}
-              autoCapitalize="words"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              style={styles.inputcontainer}
             />
           </View>
-        </View>
-        <View>
-          {/* <Text>Email:</Text> */}
-          <TextInput
-            placeholder="E-mail"
-            placeholderTextColor="gray"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            style={styles.inputcontainer}
-          />
-        </View>
-        <View>
-          {/* <Text>Password:</Text> */}
-          <TextInput
-            placeholder="Password"
-            placeholderTextColor="gray"
-            value={password}
-            onChangeText={setPassword}
-            autoCorrect={false}
-            autoCapitalize="none"
-            secureTextEntry={!showPassword} //toggle secure entry based on showpassword state
-            style={styles.inputcontainer}
-          />
-          {/* eye button which Toggles Password visibility */}
-          <MaterialCommunityIcons
-            name={showPassword ? "eye-off" : "eye"}
-            size={24}
-            color="gray"
-            onPress={() => setShowPassword(!showPassword)}
-            style={{ position: "absolute", right: 10, top: 15 }}
-          />
-        </View>
-        <View>
-          {/* <Text>Confirm Password:</Text> */}
-          <TextInput
-            placeholder="Confirm Password"
-            placeholderTextColor="gray"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            autoCorrect={false}
-            autoCapitalize="none"
-            secureTextEntry={!showPassword} //toggle secure entry based on showpassword state
-            style={styles.inputcontainer}
-          />
-        </View>
-        {/* Signup button */}
-        <View>
-          <CustomButton
-            style={styles.signupButtonstyle}
-            title="Create Account"
-            onPress={handleSignup}
-          />
-        </View>
-        <View style={styles.footer}>
           <View>
-            <Text style={{ padding: 5, fontSize: 18, marginTop: 20 }}>
-              {" "}
-              Already have an account?
-            </Text>
+            {/* <Text>Password:</Text> */}
+            <TextInput
+              placeholder="Password"
+              placeholderTextColor="gray"
+              value={password}
+              onChangeText={setPassword}
+              autoCorrect={false}
+              autoCapitalize="none"
+              secureTextEntry={!showPassword} //toggle secure entry based on showpassword state
+              style={styles.inputcontainer}
+            />
+            {/* eye button which Toggles Password visibility */}
+            <MaterialCommunityIcons
+              name={showPassword ? "eye-off" : "eye"}
+              size={24}
+              color="gray"
+              onPress={() => setShowPassword(!showPassword)}
+              style={{ position: "absolute", right: 10, top: 15 }}
+            />
           </View>
           <View>
-            <TouchableOpacity activeOpacity={0.4} onPress={handleLogIn}>
-              <View>
-                <Text style={styles.loginbutton}>Log In</Text>
-              </View>
-            </TouchableOpacity>
+            {/* <Text>Confirm Password:</Text> */}
+            <TextInput
+              placeholder="Confirm Password"
+              placeholderTextColor="gray"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              autoCorrect={false}
+              autoCapitalize="none"
+              secureTextEntry={true} //toggle secure entry based on showpassword state
+              style={styles.inputcontainer}
+            />
+          </View>
+          {/* Signup button */}
+          <View>
+            <CustomButton
+              style={styles.signupButtonstyle}
+              title="Create Account"
+              onPress={handleSignup}
+            />
+          </View>
+          <View style={styles.footer}>
+            <View>
+              <Text style={{ padding: 5, fontSize: 18, marginTop: 20 }}>
+                {" "}
+                Already have an account?
+              </Text>
+            </View>
+            <View>
+              <TouchableOpacity activeOpacity={0.4} onPress={handleLogIn}>
+                <View>
+                  <Text style={styles.loginbutton}>Log In</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
   );
 };
 export default ARegistrationScreen;
@@ -167,6 +184,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    justifyContent: "center",
   },
   nameinput: {
     borderWidth: 2,
@@ -175,14 +193,18 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   image: {
-    marginTop: 30,
-    marginBottom: 50,
+    marginTop: 110,
+    marginBottom: 70,
     width: 100,
     height: 100,
     alignSelf: "center",
+    borderRadius: 20,
+    overflow: "hidden",
+    borderWidth: 3,
+    borderColor: "#3498DB",
   },
   inputcontainer: {
-    borderColor: "gray",
+    borderColor: "white",
     marginBottom: 30,
     borderWidth: 2,
     padding: 10,

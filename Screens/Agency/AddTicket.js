@@ -1,74 +1,71 @@
-import { app, database } from "../../firebase/config";
+import { database } from "../../firebase/config";
+import { collection, doc, setDoc } from "firebase/firestore";
+import { useState, useLayoutEffect } from "react";
 import {
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  updateDoc,
-  Timestamp,
-} from "firebase/firestore";
-import { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Image } from "react-native";
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Image,
+  Pressable,
+} from "react-native";
 import CustomButton from "../../components/CustomButton.js";
 import { showMessage } from "react-native-flash-message";
+import { useRoute } from "@react-navigation/native";
+import { Feather, Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "react-native-ui-datepicker";
+import dayjs from "dayjs";
 
-const Add = (props) => {
-  const ticketsRef = collection("tickets");
-  // const collectionRef = collection(database, "tickets");
-  // const [agencyName, setAgencyName] = useState("");
-  const [arrcity, setArrcity] = useState("");
-  const [deptime, setDeptime] = useState("");
-  const [est_arrtime, setEst_arrtime] = useState("");
-  const [date, setDate] = useState("");
+const Add = () => {
+  const route = useRoute();
+  // const ticketsRef = collection(database, "tickets");
+  const [time, setTime] = useState("");
+  const [date, setDate] = useState(dayjs());
   const [price, setPrice] = useState("");
   const [available, setAvailable] = useState(70);
   const [city, setCity] = useState("");
+  const [destination, setDestination] = useState("");
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      title: "Ticket Info",
+      headerTitleStyle: {
+        fontSize: 30,
+        fontWeight: "bold",
+        color: "white",
+      },
+      headerStyle: {
+        alignItems: "center",
+        backgroundColor: "#3498DB",
+        height: 100,
+        borderBottomColor: "transparent",
+        shadowColor: "transparent",
+      },
+    });
+  }, []);
 
   const handleAddTicket = () => {
-    //add data to firestore
-    // addDoc(collectionRef, {
-    //   authorID: props.extraData.id,
-    //   agencyName: props.extraData.agencyName,
-    //   city: city,
-    //   arrival_city: arrcity,
-    //   departure_time: deptime,
-    //   est_arrival_time: est_arrtime,
-    //   date: date,
-    //   price: price,
-    //   available: available,
-    //   createdAt: Timestamp
-    // })
-    //   .then(() => {
-    //     alert("Ticket Added");
-    //     navigation.navigate("AHome");
-    //   })
-    //   .catch((error) => {
-    //     alert(error.message);
-    //   });
     const data = {
-      authorID: props.extraData.id,
-      agencyName: props.extraData.agencyName,
+      agencyID: route.params.id,
       city: city,
-      arrival_city: arrcity,
-      departure_time: deptime,
-      est_arrival_time: est_arrtime,
+      destination: destination,
+      time: time,
       date: date,
-      price: price,
       available: available,
-      createdAt: Timestamp,
+      price: price,
     };
-    ticketsRef
-      .add(data)
+    setDoc(doc(database, "tickets"), data)
       .then((_doc) => {
         showMessage({
           message: "Ticket Added",
           type: "success",
-          duration: 2000,
+          duration: 4000,
         });
       })
       .catch((error) => {
         showMessage({
-          message: "Ticket not added" + error.message,
+          message: "Could not add Ticket  " + error.message,
           type: "danger",
           duration: 4000,
         });
@@ -77,17 +74,12 @@ const Add = (props) => {
 
   return (
     <View style={styles.container}>
-      {/* <TextInput
-        style={styles.nameinput}
-        placeholder="agency Name"
-        placeholderTextColor="gray"
-        value={agencyName}
-        onChangeText={setAgencyName}
-        autoCapitalize="words"
-      /> */}
-      <View style={styles.container1}>
+      <View>
+        <Image style={styles.image} source={{ url: "../assets/ticket1.png" }} />
+      </View>
+      <View>
         <TextInput
-          style={styles.style1}
+          style={styles.style2}
           placeholder="city"
           placeholderTextColor="gray"
           value={city}
@@ -96,37 +88,45 @@ const Add = (props) => {
         />
         <TextInput
           style={styles.style2}
-          placeholder="arrival city"
+          placeholder=" Enter Destination"
           placeholderTextColor="gray"
-          value={arrcity}
-          onChangeText={setArrcity}
+          value={destination}
+          onChangeText={setDestination}
           autoCapitalize="words"
-        />
-      </View>
-      <View style={styles.container1}>
-        <TextInput
-          style={styles.style1}
-          placeholder="departure time"
-          placeholderTextColor="gray"
-          value={deptime}
-          onChangeText={setDeptime}
-        />
-        <TextInput
-          style={styles.style2}
-          placeholder="arrival time"
-          placeholderTextColor="gray"
-          value={est_arrtime}
-          onChangeText={setEst_arrtime}
         />
       </View>
       <View>
         <TextInput
-          style={styles.style1}
-          placeholder="date"
+          style={styles.style2}
+          placeholder="departure time"
           placeholderTextColor="gray"
-          value={date}
-          onChangeText={setDate}
+          value={time}
+          onChangeText={setTime}
         />
+      </View>
+      <View>
+        {/*Date*/}
+        <Pressable
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 10,
+            paddingHorizontal: 10,
+            borderColor: "white",
+            borderWidth: 2,
+            paddingVertical: 15,
+            backgroundColor: "white",
+          }}
+        >
+          <Feather name="calendar" size={24} color="black" />
+          <DateTimePicker
+            mode="single"
+            locale="en"
+            date={date}
+            onChange={(params) => setDate(params.date)}
+            selectedItemColor="#3498DB"
+          />
+        </Pressable>
         <TextInput
           style={styles.style2}
           placeholder={available}
@@ -136,7 +136,7 @@ const Add = (props) => {
         />
       </View>
       <TextInput
-        style={styles.nameinput}
+        style={styles.style2}
         placeholder="price per ticket"
         placeholderTextColor="gray"
         value={price}
@@ -162,38 +162,13 @@ const styles = StyleSheet.create({
     alignContent: "center",
     alignItems: "center",
   },
-  container1: {
-    flexDirection: "row",
-    alignContent: "space-between",
-  },
-  text: {
-    fontSize: 25,
-    color: "3498DB",
-    marginTop: -50,
-    marginBottom: 50,
-  },
-  nameinput: {
-    borderWidth: 2,
-    borderColor: "gray",
-    width: 300,
-    padding: 5,
-    borderRadius: 30,
-    marginBottom: 10,
-  },
-  style1: {
-    width: 135,
-    borderWidth: 2,
-    borderRadius: 30,
-    borderColor: "gray",
-    paddingLeft: 10,
-    marginRight: 30,
-  },
   style2: {
-    width: 135,
+    width: 200,
     borderWidth: 2,
-    borderRadius: 30,
-    borderColor: "gray",
+    borderRadius: 10,
+    borderColor: "white",
     paddingLeft: 10,
+    backgroundColor: "white",
   },
   add: {
     backgroundColor: "#3498DB",
@@ -203,5 +178,11 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 10,
     borderRadius: 10,
+  },
+  image: {
+    width: 300,
+    height: 300,
+    resizeMode: "contain",
+    marginBottom: 40,
   },
 });

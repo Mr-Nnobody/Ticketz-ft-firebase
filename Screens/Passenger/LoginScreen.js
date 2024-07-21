@@ -178,6 +178,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     alignSelf: "center",
+    borderRadius: 20,
+    overflow: "hidden",
+    borderWidth: 3,
+    borderColor: "#3498DB",
   },
   text: {
     color: "#17ff",

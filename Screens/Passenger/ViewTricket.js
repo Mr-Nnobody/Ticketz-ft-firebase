@@ -5,7 +5,7 @@ import { useRoute } from "@react-navigation/native";
 const AViewTicket = () => {
   const route = useRoute();
 
-  const handleUpdate = () => {
+  const handlePurchase = () => {
     //next logic goes here
   };
 
@@ -29,6 +29,10 @@ const AViewTicket = () => {
   }, []);
   return (
     <View>
+      <Text style={{ textAlign: "center", fontSize: 20, fontWeight: 500 }}>
+        {" "}
+        agencyName
+      </Text>
       <Image style={styles.image} source={{ url: "../assets/ticket1.png" }} />
       <Text style={styles.textstyle}>Time: {route.params.time}</Text>
       <Text style={styles.textstyle}>From: {route.params.city}</Text>
@@ -40,8 +44,8 @@ const AViewTicket = () => {
       </Text>
       <Text style={styles.textstyle}>Price: {route.params.price} FCFA</Text>
       <CustomButton
-        title="Update"
-        onPress={handleUpdate}
+        title="Purchase"
+        onPress={handlePurchase}
         style={styles.button}
       />
     </View>

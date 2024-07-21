@@ -1,80 +1,79 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
+  SafeAreaView,
   ImageBackground,
   TouchableOpacity,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; //import the eye icon
 import CustomButton from "../../components/CustomButton";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { showMessage } from "react-native-flash-message";
 import { database } from "../../firebase/config";
+import { getDoc, doc } from "firebase/firestore";
+import { useNavigation } from "@react-navigation/native";
+import { UserContext } from "../../Contexts/UserContext";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
-const ALoginScreen = ({ navigation }) => {
+const ALoginScreen = () => {
+  const navigation = useNavigation();
   const auth = getAuth();
   const [Email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const { auser, setAuser, auserId, setAuserId } = useContext(UserContext);
 
-  const handleLogin = () => {
-    // Handle login logic here
-    // signInWithEmailAndPassword(auth, Email, password)
-    //   .then((userCredentials) => {
-    //     const user = userCredentials.user;
-    //     navigation.navigate("AHome", { user });
-    //     showMessage({
-    //       message: "Welcome " + user.email,
-    //       type: "success",
-    //       duration: 2000,
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     showMessage({
-    //       message: error.message,
-    //       type: "warning",
-    //       duration: 2000,
-    //     });
-    //     //.....
-    //   });
+  //..
+  useEffect(() => {
+    console.log("Saving user data in context.......");
+    console.log("........................");
+    console.log("Updated auser:", auser);
+    console.log("Updated auserId:", auserId);
+  }, [auser]);
+
+  const handleLogin = async () => {
+    if (Email === "" || password === "") {
+      showMessage({
+        message: "Fields cannnot be empty",
+        type: "danger",
+        duration: 4000,
+      });
+      return;
+    }
 
     //ensuring that when signing in, user data is read from db.
     signInWithEmailAndPassword(auth, Email, password)
       .then((userCredentials) => {
         const uid = userCredentials.user.uid;
-        const agencyRef = collection(database, "agencies");
-        agencyRef
-          .doc(uid)
-          .get()
-          .then((firestoreDocument) => {
-            if (!firestoreDocument.exists) {
-              showMessage({
-                message: "User does not exist",
-                type: "danger",
-                duration: 4000,
-              });
-              return;
-            }
-            const user = firestoreDocument.data();
-            navigation.navigate("AHome", { user });
-          })
-          .catch((error) => {
+        getDoc(doc(database, "agencies", uid)).then((documents) => {
+          if (uid !== documents.id) {
             showMessage({
-              message: error.message,
-              type: "danger",
-              duration: 4000,
+              message: "User does not exist",
+              type: "warning",
+              duration: 6000,
             });
+            return;
+          }
+          showMessage({
+            message: "Log in Successful",
+            type: "success",
+            duration: 4000,
           });
+          setAuserId(userCredentials.user.uid);
+          setAuser(documents.data());
+          // console.log(uid, documents.data());
+          // console.log(auser);
+          navigation.replace("Amain");
+        });
       })
-      .catch((error) => {
+      .catch((e) => {
         showMessage({
-          message: "Invalid email or password ",
+          message: "Invalid email or password " + e.message,
           type: "danger",
           duration: 4000,
         });
-        //.....
       });
   };
   const handleSignup = () => {
@@ -160,16 +159,16 @@ const ALoginScreen = ({ navigation }) => {
     </View>
   );
 };
-
 export default ALoginScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: "#EEEEEE",
   },
   inputcontainer: {
-    borderColor: "gray",
+    borderColor: "white",
     marginBottom: 30,
     borderWidth: 2,
     padding: 10,
@@ -194,6 +193,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     alignSelf: "center",
+    borderRadius: 20,
+    overflow: "hidden",
+    borderWidth: 3,
+    borderColor: "#3498DB",
   },
   text: {
     color: "#17ff",

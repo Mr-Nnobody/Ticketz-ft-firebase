@@ -1,4 +1,12 @@
-import { View, Text, StyleSheet, FlatList, Keyboard } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  Pressable,
+  TextInput,
+} from "react-native";
 import { database } from "../../firebase/config";
 import {
   collection,
@@ -7,12 +15,49 @@ import {
   onSnapshot,
   orderBy,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useContext, useLayoutEffect, useState } from "react";
 import CustomButton from "../../components/CustomButton";
 import { showMessage } from "react-native-flash-message";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { Feather, Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "react-native-ui-datepicker";
+import dayjs from "dayjs";
+import { UserContext } from "../../Contexts/UserContext";
 
-const HomeScreen = ({ navigation, route }) => {
+const HomeScreen = () => {
+  const navigation = useNavigation();
+
+  const [destination, setDestination] = useState("");
+  const [date, setDate] = useState(dayjs());
+  const [agency, setAgency] = useState("");
+  const { auser, setAuser, auserId, setAuserId } = useContext(UserContext);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      title: auser.agencyName,
+      headerTitleStyle: {
+        fontSize: 30,
+        fontWeight: "bold",
+        color: "white",
+      },
+      headerStyle: {
+        backgroundColor: "#3498DB",
+        height: 100,
+        borderBottomColor: "transparent",
+        shadowColor: "transparent",
+      },
+      headerRight: () => (
+        <Ionicons
+          name="notifications-outline"
+          size={24}
+          color="white"
+          style={{ marginRight: 12 }}
+        />
+      ),
+    });
+  }, []);
+
   // const collectionRef = collection("tickets");
   const [tickets, setTickets] = useState([]);
 
@@ -32,16 +77,15 @@ const HomeScreen = ({ navigation, route }) => {
   //     return response.docs.map(item);
   //   })
   // );
-  //const route = useRoute();
   const ticketsRef = collection(database, "tickets");
-  //const { user } = route.params;
-  const userID = 4; //route.params?.data.id;
-  const data = route.params;
-  console.log(data, userID);
+
+  // const querySnapshot = await getDocs(collection(database, "agencies"));
+  // querySnapshot.forEach((doc) => {
+
   useEffect(() => {
     const queryRef = query(
       ticketsRef,
-      where("authorID", "==", userID),
+      where("authorID", "==", auserId),
       orderBy("createdAt", "desc")
     );
     const unsubscribe = onSnapshot(
@@ -68,18 +112,6 @@ const HomeScreen = ({ navigation, route }) => {
     };
   }, []);
 
-  const handleAddTicket = () => {
-    navigation.navigate("AddTicket", { data });
-  };
-
-  const handleViewTicket = () => {
-    navigation.navigate("AView");
-  };
-
-  const handleUpdateData = () => {
-    navigation.navigate("AUpdate");
-  };
-
   const renderTicket = ({ item, index }) => {
     return (
       <View style={styles.ticket}>
@@ -101,39 +133,96 @@ const HomeScreen = ({ navigation, route }) => {
   };
 
   return (
-    // <View style={styles.container}>
-    //   <FlatList
-    //     data={data}
-    //     renderItem={(item) => {
-    //       return (
-    //         <View style={StyleSheetList.dataItem}>
-    //           <Text> {item.data()}</Text>
-    //         </View>
-    //       );
-    //     }}
-    //     alwaysBounceVertical={false}
-    //   />
-    //   <View>
-    //     <CustomButton
-    //       title="Add"
-    //       onPress={handleAddTicket}
-    //       style={styles.addbutton}
-    //     />
-    //   </View>
-    // </View>
     <View style={styles.container}>
+      <View>
+        <ScrollView>
+          <View
+            style={{
+              margin: 20,
+              borderColor: "#3498DB",
+              borderWidth: 3,
+              borderRadius: 6,
+            }}
+          >
+            {/*Destination*/}
+            <Pressable
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+                paddingHorizontal: 10,
+                borderColor: "#3498DB",
+                borderWidth: 2,
+                paddingVertical: 15,
+              }}
+            >
+              <Feather name="search" size={24} color="black" />
+              <TextInput
+                placeholderTextColor="black"
+                placeholder={"Enter Your Destination"}
+              />
+            </Pressable>
+
+            {/*Date*/}
+            <Pressable
+              onPress={() => {
+                return (
+                  <DateTimePicker
+                    mode="single"
+                    locale="en"
+                    date={date}
+                    onChange={(params) => setDate(params.date)}
+                    selectedItemColor="#3498DB"
+                  />
+                );
+              }}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+                paddingHorizontal: 10,
+                borderColor: "#3498DB",
+                borderWidth: 2,
+                paddingVertical: 15,
+              }}
+            >
+              <Feather name="calendar" size={24} color="black" />
+            </Pressable>
+
+            {/*Search */}
+            <Pressable
+              onPress={() => navigation.navigate("ASearch")}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+                paddingHorizontal: 10,
+                borderColor: "#3498DB",
+                borderWidth: 2,
+                paddingVertical: 15,
+                backgroundColor: "#3498DB",
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 15,
+                  fontWeight: "500",
+                  color: "white",
+                }}
+              >
+                Search
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </View>
+
       <FlatList
         data={tickets}
         renderItem={renderTicket}
         keyExtractor={(item) => item.id}
       />
-      <View>
-        <CustomButton
-          title="Add"
-          onPress={handleAddTicket}
-          style={styles.addbutton}
-        />
-      </View>
     </View>
   );
 };
@@ -144,14 +233,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignContent: "center",
     alignItems: "center",
-  },
-  addbutton: {
-    position: "absolute",
-    bottom: 80,
-    left: 80,
-    padding: 10,
-    backgroundColor: "#3498DB",
-    width: 60,
-    borderRadius: 100,
+    backgroundColor: "#EEEEEE",
   },
 });
