@@ -95,7 +95,15 @@ const AddTicket = () => {
         duration: 4000,
       });
 
-      // Navigate back to the previous page
+      // Reset fields to initial values
+      setPrice("");
+      setAvailable(70);
+      setCity("");
+      setDestination("");
+      setDate(new Date());
+      setTime(new Date());
+
+      // Optionally, navigate back to the previous page
       navigation.goBack();
     } catch (error) {
       // Show an error message if something goes wrong
@@ -162,7 +170,7 @@ const AddTicket = () => {
               <Text style={{ fontSize: 20 }}>Available: </Text>
               <TextInput
                 placeholderTextColor="gray"
-                placeholder={"Enter Amount Availble"}
+                placeholder={"Enter Amount Available"}
                 value={available.toString()}
                 onChangeText={setAvailable}
                 keyboardType="number-pad"

@@ -6,14 +6,16 @@ import {
   ScrollView,
   Pressable,
   TextInput,
+  Image,
+  TouchableOpacity,
 } from "react-native";
 import { database } from "../../firebase/config";
 import {
   collection,
+  getDocs,
   where,
   query,
   onSnapshot,
-  orderBy,
 } from "firebase/firestore";
 import { useEffect, useContext, useLayoutEffect, useState } from "react";
 import CustomButton from "../../components/CustomButton";
@@ -23,6 +25,7 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "react-native-ui-datepicker";
 import dayjs from "dayjs";
 import { UserContext } from "../../Contexts/UserContext";
+import AViewTicket from "./AViewTicket.js";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -30,7 +33,8 @@ const HomeScreen = () => {
   const [destination, setDestination] = useState("");
   const [date, setDate] = useState(dayjs());
   const [agency, setAgency] = useState("");
-  const { auser, setAuser, auserId, setAuserId } = useContext(UserContext);
+  const { auser, setAuser, auserId, setAuserId, view, setView } =
+    useContext(UserContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -58,171 +62,185 @@ const HomeScreen = () => {
     });
   }, []);
 
-  // const collectionRef = collection("tickets");
+  // fetch user tickets function based on user id.
+
+  const fetchTickets = (userId, callback) => {
+    const ticketsRef = collection(database, "tickets");
+    const q = query(ticketsRef, where("agencyID", "==", userId));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const ticketsList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      callback(ticketsList);
+    });
+
+    // Return the unsubscribe function to allow cleanup
+    return unsubscribe;
+  };
+
   const [tickets, setTickets] = useState([]);
-
-  // //sample getting data from firebase
-  // const getData = () => {
-  //   getDocs(collectionRef).then((response) => {
-  //     setData(response.docs);
-  //     <Text>
-  //       {response.docs.map((item) => {
-  //         return { ...item.data(), id: item.id };
-  //       })}
-  //     </Text>;
-  //   });
-  // };
-  // setData(
-  //   getDocs(collectionRef).then((response) => {
-  //     return response.docs.map(item);
-  //   })
-  // );
-  const ticketsRef = collection(database, "tickets");
-
-  // const querySnapshot = await getDocs(collection(database, "agencies"));
-  // querySnapshot.forEach((doc) => {
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const queryRef = query(
-      ticketsRef,
-      where("authorID", "==", auserId),
-      orderBy("createdAt", "desc")
-    );
-    const unsubscribe = onSnapshot(
-      queryRef,
-      (querySnapshot) => {
-        const newTickets = [];
-        querySnapshot.forEach((doc) => {
-          const ticket = doc.data();
-          ticket.id = doc.id;
-          newTickets.push(ticket);
-        });
-        setTickets(newTickets);
-      },
-      (error) => {
-        showMessage({
-          message: error.message,
-          type: "danger",
-          duration: 100000,
-        });
-      }
-    );
+    let unsubscribe;
+    if (auserId) {
+      unsubscribe = fetchTickets(auserId, (ticketsList) => {
+        setTickets(ticketsList);
+        setLoading(false);
+      });
+    }
+    console.log(tickets);
+    // Cleanup subscription on unmount
     return () => {
-      unsubscribe;
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
-  }, []);
+  }, [auserId]); // Dependency on user to refetch if user changes
 
-  const renderTicket = ({ item, index }) => {
-    return (
-      <View style={styles.ticket}>
-        <Text>
-          {index}. (<Text>Departure City: {item.depCity}</Text>
-          <Text>Arrival City: {item.arrCity}</Text>
-          <Text>Departure Time: {item.deptime}</Text>
-          <Text>Arrival Time: {item.est_arrtime}</Text>
-          <Text>Date: {item.date}</Text>
-          <Text>Price: {item.price}</Text>)
-        </Text>
-        <CustomButton
-          title="Update"
-          onPress={() => handleUpdateData(item)}
-          style={styles.updateButton}
+  const handleView = ({ item }) => {
+    setView(item);
+    navigation.navigate("AView");
+    console.log(view);
+  };
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={({ item }) => handleView({ item })}
+    >
+      <View style={styles.ticketItem}>
+        <Image
+          style={styles.image}
+          source={require("../../assets/ticket1.png")}
         />
+        <View>
+          <Text style={styles.ticketText}>
+            From: {"  "}
+            {item.city}
+            {"("}
+            {new Date(item.time).toLocaleTimeString()}
+            {")"}
+          </Text>
+          <Text style={styles.ticketText}>
+            To: {"  "}
+            {item.destination}
+          </Text>
+          <Text style={styles.ticketText}>
+            Date: {"  "}
+            {new Date(item.date).toDateString()}
+          </Text>
+          <Text style={styles.ticketText}>
+            Available: {"  "}
+            {item.available} {"  "}Left
+          </Text>
+          <Text style={styles.ticketText}>Price: {item.price} XAF</Text>
+          {/* <Text style={styles.ticketText}>
+          Time: {new Date(item.time).toLocaleTimeString()}
+        </Text> */}
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loading}>
+        <Text>Loading tickets...</Text>
       </View>
     );
-  };
+  }
 
   return (
     <View style={styles.container}>
       <View>
-        <ScrollView>
-          <View
+        <View
+          style={{
+            margin: 20,
+            borderColor: "#3498DB",
+            borderWidth: 3,
+            borderRadius: 6,
+          }}
+        >
+          {/*Destination*/}
+          <Pressable
             style={{
-              margin: 20,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+              paddingHorizontal: 10,
               borderColor: "#3498DB",
-              borderWidth: 3,
-              borderRadius: 6,
+              borderWidth: 2,
+              paddingVertical: 15,
             }}
           >
-            {/*Destination*/}
-            <Pressable
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                paddingHorizontal: 10,
-                borderColor: "#3498DB",
-                borderWidth: 2,
-                paddingVertical: 15,
-              }}
-            >
-              <Feather name="search" size={24} color="black" />
-              <TextInput
-                placeholderTextColor="black"
-                placeholder={"Enter Your Destination"}
-              />
-            </Pressable>
+            <Feather name="search" size={24} color="black" />
+            <TextInput
+              placeholderTextColor="black"
+              placeholder={"Enter Your Destination"}
+            />
+          </Pressable>
 
-            {/*Date*/}
-            <Pressable
-              onPress={() => {
-                return (
-                  <DateTimePicker
-                    mode="single"
-                    locale="en"
-                    date={date}
-                    onChange={(params) => setDate(params.date)}
-                    selectedItemColor="#3498DB"
-                  />
-                );
-              }}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                paddingHorizontal: 10,
-                borderColor: "#3498DB",
-                borderWidth: 2,
-                paddingVertical: 15,
-              }}
-            >
-              <Feather name="calendar" size={24} color="black" />
-            </Pressable>
+          {/*Date*/}
+          <Pressable
+            onPress={() => {
+              return (
+                <DateTimePicker
+                  mode="single"
+                  locale="en"
+                  date={date}
+                  onChange={(params) => setDate(params.date)}
+                  selectedItemColor="#3498DB"
+                />
+              );
+            }}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+              paddingHorizontal: 10,
+              borderColor: "#3498DB",
+              borderWidth: 2,
+              paddingVertical: 15,
+            }}
+          >
+            <Feather name="calendar" size={24} color="black" />
+          </Pressable>
 
-            {/*Search */}
-            <Pressable
-              onPress={() => navigation.navigate("ASearch")}
+          {/*Search */}
+          <Pressable
+            onPress={() => navigation.navigate("ASearch")}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+              paddingHorizontal: 10,
+              borderColor: "#3498DB",
+              borderWidth: 2,
+              paddingVertical: 15,
+              backgroundColor: "#3498DB",
+            }}
+          >
+            <Text
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                paddingHorizontal: 10,
-                borderColor: "#3498DB",
-                borderWidth: 2,
-                paddingVertical: 15,
-                backgroundColor: "#3498DB",
+                textAlign: "center",
+                fontSize: 15,
+                fontWeight: "500",
+                color: "white",
               }}
             >
-              <Text
-                style={{
-                  textAlign: "center",
-                  fontSize: 15,
-                  fontWeight: "500",
-                  color: "white",
-                }}
-              >
-                Search
-              </Text>
-            </Pressable>
-          </View>
-        </ScrollView>
+              Search
+            </Text>
+          </Pressable>
+        </View>
+
+        <FlatList
+          data={tickets}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContainer}
+        />
       </View>
-
-      <FlatList
-        data={tickets}
-        renderItem={renderTicket}
-        keyExtractor={(item) => item.id}
-      />
     </View>
   );
 };
@@ -234,5 +252,44 @@ const styles = StyleSheet.create({
     alignContent: "center",
     alignItems: "center",
     backgroundColor: "#EEEEEE",
+  },
+  listContainer: {
+    padding: 10,
+  },
+  ticketItem: {
+    flexDirection: "row",
+    backgroundColor: "#D9D9D9",
+    padding: 15,
+    marginVertical: 8,
+    // marginHorizontal: 16,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+    width: 340,
+    height: 150,
+    justifyContent: "space-between",
+  },
+  ticketText: {
+    fontSize: 16,
+    marginBottom: 5,
+    fontWeight: "bold",
+    marginTop: -3,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: 150,
+    height: 130,
+    borderRadius: 30,
+    overflow: "hidden",
+    borderWidth: 3,
+    borderColor: "white",
+    marginLeft: -10,
+    marginTop: -5,
   },
 });

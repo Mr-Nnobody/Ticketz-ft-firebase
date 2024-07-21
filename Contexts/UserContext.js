@@ -8,6 +8,7 @@ const UserProvider = ({ children }) => {
   const [user, setUser] = useState([]);
   const [auserId, setAuserId] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [view, setView] = useState([]);
   return (
     <UserContext.Provider
       value={{
@@ -19,6 +20,8 @@ const UserProvider = ({ children }) => {
         setAuserId,
         userId,
         setUserId,
+        view,
+        setView,
       }}
     >
       {children}

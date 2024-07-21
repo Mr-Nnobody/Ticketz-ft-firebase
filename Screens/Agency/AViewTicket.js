@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, Image } from "react-native";
 import CustomButton from "../../components/CustomButton";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { useLayoutEffect } from "react";
 
 const AViewTicket = () => {
-  const route = useRoute();
+  const navigation = useNavigation();
 
   const handleUpdate = () => {
     //next logic goes here
@@ -12,7 +13,7 @@ const AViewTicket = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      title: "Ticket Info",
+      title: "Ticket Details",
       headerTitleStyle: {
         fontSize: 30,
         fontWeight: "bold",
@@ -27,18 +28,15 @@ const AViewTicket = () => {
       },
     });
   }, []);
+
   return (
     <View>
-      <Image style={styles.image} source={{ url: "../assets/ticket1.png" }} />
-      <Text style={styles.textstyle}>Time: {route.params.time}</Text>
-      <Text style={styles.textstyle}>From: {route.params.city}</Text>
-      <Text style={styles.textstyle}>
-        Destination: {route.params.destination}
-      </Text>
-      <Text style={styles.textstyle}>
-        Available: {route.params.avaialable} left
-      </Text>
-      <Text style={styles.textstyle}>Price: {route.params.price} FCFA</Text>
+      {/* <Image style={styles.image} source={{ url: "../assets/ticket1.png" }} />
+      <Text style={styles.textstyle}>Time: {data.time}</Text>
+      <Text style={styles.textstyle}>From: {data.city}</Text>
+      <Text style={styles.textstyle}>Destination: {data.destination}</Text>
+      <Text style={styles.textstyle}>Available: {data.avaialable} left</Text>
+      <Text style={styles.textstyle}>Price: {data.price} FCFA</Text> */}
       <CustomButton
         title="Update"
         onPress={handleUpdate}

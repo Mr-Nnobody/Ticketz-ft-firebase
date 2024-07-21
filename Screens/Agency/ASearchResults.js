@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
+import { showMessage } from "react-native-flash-message";
 
 const ASearchResults = ({ data, input, setInput }) => {
   const navigation = useNavigation();
@@ -16,42 +17,50 @@ const ASearchResults = ({ data, input, setInput }) => {
       <FlatList
         data={data}
         renderItem={(item) => {
-          if (item.place.toLowerCase().includes(input.toLowerCase())) {
-            if (input === "") {
-              return null;
+          try {
+            if (item.place.toLowerCase().includes(input.toLowerCase())) {
+              if (input === "") {
+                return null;
+              }
+              return (
+                <Pressable
+                  onPress={() => {
+                    setInput(item.destination);
+                    navigation.navigate("AView", {
+                      id: item.id,
+                      destination: item.destination,
+                      available: item.available,
+                      price: item.price,
+                      city: item.city,
+                      time: item.time,
+                    });
+                  }}
+                  style={styles.itembox}
+                >
+                  <View>
+                    //enter ticket image
+                    <Image
+                      style={styles.image}
+                      source={{ url: "../assets/ticket1.png" }}
+                    />
+                  </View>
+                  <View style={styles.items}>
+                    <Text style={styles.text}>
+                      From : {item.city} at {item.time}
+                    </Text>
+                    <Text>Destination: {item.destination} </Text>
+                    <Text>Available: {item.available} left</Text>
+                    <Text>Price: {item.price} FCFA</Text>
+                  </View>
+                </Pressable>
+              );
             }
-            return (
-              <Pressable
-                onPress={() => {
-                  setInput(item.destination);
-                  navigation.navigate("AView", {
-                    id: item.id,
-                    destination: item.destination,
-                    available: item.available,
-                    price: item.price,
-                    city: item.city,
-                    time: item.time,
-                  });
-                }}
-                style={styles.itembox}
-              >
-                <View>
-                  //enter ticket image
-                  <Image
-                    style={styles.image}
-                    source={{ url: "../assets/ticket1.png" }}
-                  />
-                </View>
-                <View style={styles.items}>
-                  <Text style={styles.text}>
-                    From : {item.city} at {item.time}
-                  </Text>
-                  <Text>Destination: {item.destination} </Text>
-                  <Text>Available: {item.available} left</Text>
-                  <Text>Price: {item.price} FCFA</Text>
-                </View>
-              </Pressable>
-            );
+          } catch (e) {
+            showMessage({
+              message: e.message,
+              type: "warning",
+              duration: 4000,
+            });
           }
         }}
       />
