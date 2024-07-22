@@ -6,10 +6,10 @@ import CustomButton from "../../components/CustomButton";
 import { getAuth, signOut } from "firebase/auth";
 import { showMessage } from "react-native-flash-message";
 
-const AProfileScreen = () => {
+const ProfileScreen = () => {
   const auth = getAuth();
   const navigation = useNavigation();
-  const { auser, setAuser, setAuserId } = useContext(UserContext);
+  const { user, setUser, setUserId } = useContext(UserContext);
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -39,15 +39,13 @@ const AProfileScreen = () => {
           duration: 4000,
         });
         navigation.replace("ALoginScreen");
-        setAuser([]);
-        setAuserId(null);
-        setTicket([]);
-        setView([]);
+        setUser([]);
+        setUserId(null);
       })
       .catch((error) => {
         // An error happened.
         showMessage({
-          message: "Failed to Log out" + error.message,
+          message: "Failed to Log out " + error.message,
           type: "danger",
           duration: 4000,
         });
@@ -58,12 +56,12 @@ const AProfileScreen = () => {
     <View style={styles.container}>
       <View style={{ marginTop: 30 }}>
         <View style={styles.text}>
-          <Text style={{ fontSize: 20 }}>Agency Name: </Text>
-          <Text style={{ fontSize: 20 }}>{auser.agencyName}</Text>
+          <Text style={{ fontSize: 20 }}>Name: </Text>
+          <Text style={{ fontSize: 20 }}>{user.fullName}</Text>
         </View>
         <View style={styles.text}>
           <Text style={{ fontSize: 20 }}>Email: </Text>
-          <Text style={{ fontSize: 20 }}>{auser.email}</Text>
+          <Text style={{ fontSize: 20 }}>{user.email}</Text>
         </View>
       </View>
       <CustomButton
@@ -75,7 +73,7 @@ const AProfileScreen = () => {
   );
 };
 
-export default AProfileScreen;
+export default ProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -94,23 +92,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "white",
     color: "black",
-    width: "90%",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
+    width: 300,
   },
   logout: {
     marginTop: 100,
     backgroundColor: "#3498DB",
-    width: "90%",
+    width: 300,
     color: "white",
     padding: 10,
     borderRadius: 10,
     marginBottom: 30,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { showMessage } from "react-native-flash-message";
 import { collection } from "firebase/firestore";
 import { database } from "../../firebase/config";
+import { UserContext } from "../../Contexts/UserContext";
 
 const ALoginScreen = ({ navigation }) => {
   const auth = getAuth();
@@ -20,43 +21,55 @@ const ALoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const { user, setUser, userId, setUserId } = useContext(UserContext);
+
+  //..printing context user data to ensure data is updated
+  useEffect(() => {
+    console.log("Saving user data in context.......");
+    console.log("........................");
+    console.log("Updated auser:", user);
+    console.log("Updated auserId:", userId);
+  }, [user]);
+
   const handleLogin = () => {
     // Handle login logic here
+    if (Email === "" || password === "") {
+      showMessage({
+        message: "Fields cannnot be empty",
+        type: "danger",
+        duration: 4000,
+      });
+      return;
+    }
     //ensuring that when signing in, user data is read from db.
     signInWithEmailAndPassword(auth, Email, password)
       .then((userCredentials) => {
         const uid = userCredentials.user.uid;
-        const usersRef = collection(database, "users");
-        usersRef
-          .doc(uid)
-          .get()
-          .then((firestoreDocument) => {
-            if (!firestoreDocument.exists) {
-              showMessage({
-                message: "User does not exist",
-                type: "danger",
-                duration: 4000,
-              });
-              return;
-            }
-            const user = firestoreDocument.data();
-            navigation.navigate("Home", { user });
-          })
-          .catch((error) => {
+        getDoc(doc(database, "users", uid)).then((documents) => {
+          if (uid !== documents.id) {
             showMessage({
-              message: error.message,
-              type: "danger",
-              duration: 4000,
+              message: "User does not exist",
+              type: "warning",
+              duration: 6000,
             });
+            return;
+          }
+          showMessage({
+            message: "Log in Successful",
+            type: "success",
+            duration: 4000,
           });
+          setUserId(userCredentials.user.uid);
+          setUser(documents.data());
+          navigation.replace("main");
+        });
       })
-      .catch((error) => {
+      .catch((e) => {
         showMessage({
-          message: error.message,
+          message: "Invalid email or password " + e.message,
           type: "danger",
           duration: 4000,
         });
-        //.....
       });
   };
   const handleSignup = () => {
@@ -151,9 +164,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: "#EEEEEE",
   },
   inputcontainer: {
-    borderColor: "gray",
+    borderColor: "white",
     marginBottom: 30,
     borderWidth: 2,
     padding: 10,
@@ -162,19 +176,27 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "white",
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   loginButtonstyle: {
-    marginTop: 20,
+    marginTop: 40,
     backgroundColor: "#3498DB", //"#788eec",
     width: 300,
     color: "white",
     padding: 10,
     borderRadius: 10,
     fontWeight: "bold",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 4,
   },
   Image: {
-    marginTop: 70,
-    marginBottom: 80,
+    marginTop: 130,
+    marginBottom: 100,
     width: 100,
     height: 100,
     alignSelf: "center",
@@ -182,6 +204,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 3,
     borderColor: "#3498DB",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   text: {
     color: "#17ff",

@@ -4,11 +4,18 @@ import React, { createContext, useState, useContext } from "react";
 const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
+  //agency personnel data
   const [auser, setAuser] = useState([]);
-  const [user, setUser] = useState([]);
+  //AGENCY personnel userID
   const [auserId, setAuserId] = useState(null);
+  //user data(passenger)
+  const [user, setUser] = useState([]);
+  //userID(passenger)
   const [userId, setUserId] = useState(null);
+  //view tickets data
   const [view, setView] = useState([]);
+  //tickets data for search functionality
+  const [ticket, setTicket] = useState([]);
   return (
     <UserContext.Provider
       value={{
@@ -22,6 +29,8 @@ const UserProvider = ({ children }) => {
         setUserId,
         view,
         setView,
+        ticket,
+        setTicket,
       }}
     >
       {children}

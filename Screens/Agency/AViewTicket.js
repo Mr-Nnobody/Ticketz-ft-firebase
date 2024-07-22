@@ -1,10 +1,12 @@
 import { View, Text, StyleSheet, Image } from "react-native";
 import CustomButton from "../../components/CustomButton";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useContext } from "react";
+import { UserContext } from "../../Contexts/UserContext";
 
 const AViewTicket = () => {
   const navigation = useNavigation();
+  const { view } = useContext(UserContext);
 
   const handleUpdate = () => {
     //next logic goes here
@@ -30,13 +32,38 @@ const AViewTicket = () => {
   }, []);
 
   return (
-    <View>
-      {/* <Image style={styles.image} source={{ url: "../assets/ticket1.png" }} />
-      <Text style={styles.textstyle}>Time: {data.time}</Text>
-      <Text style={styles.textstyle}>From: {data.city}</Text>
-      <Text style={styles.textstyle}>Destination: {data.destination}</Text>
-      <Text style={styles.textstyle}>Available: {data.avaialable} left</Text>
-      <Text style={styles.textstyle}>Price: {data.price} FCFA</Text> */}
+    <View style={styles.container}>
+      <Image
+        style={styles.image}
+        source={require("../../assets/ticket1.png")}
+      />
+      <View style={styles.text}>
+        <Text>Time: </Text>
+        <Text>{new Date(view.time).toLocaleTimeString()}</Text>
+      </View>
+      <View style={styles.text}>
+        <Text>Date:</Text>
+        <Text>{new Date(view.date).toDateString()}</Text>
+      </View>
+      <View style={styles.text}>
+        <Text>From: </Text>
+        <Text>{view.city}</Text>
+      </View>
+      <View style={styles.text}>
+        <Text>Destination: </Text>
+        <Text> {view.destination}</Text>
+      </View>
+      <View style={styles.text}>
+        <Text>Available: </Text>
+        <Text>
+          {" "}
+          {view.available} {"  "}left
+        </Text>
+      </View>
+      <View style={styles.text}>
+        <Text>Price: </Text>
+        <Text> {view.price} FCFA</Text>
+      </View>
       <CustomButton
         title="Update"
         onPress={handleUpdate}
@@ -48,19 +75,38 @@ const AViewTicket = () => {
 export default AViewTicket;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#EEEEEE",
+  },
   image: {
-    width: 300,
-    height: 300,
-    resizeMode: "contain",
+    marginTop: -20,
     marginBottom: 40,
+    width: 270,
+    height: 200,
+    borderRadius: 30,
+    overflow: "hidden",
+    borderWidth: 3,
+    borderColor: "white",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   textstyle: {
+    width: 300,
     borderWidth: 2,
     borderColor: "white",
     padding: 10,
     marginBottom: 10,
     borderRadius: 10,
     backgroundColor: "white",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   button: {
     marginTop: 50,
@@ -69,5 +115,25 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 10,
     borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  text: {
+    justifyContent: "space-between",
+    flexDirection: "row",
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: "white",
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "white",
+    color: "black",
+    width: 300,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
 });

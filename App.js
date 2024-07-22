@@ -18,6 +18,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Entypo } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AddTicket from "./Screens/Agency/Add.js";
 
 // setting area on the top screen where icons above can be visible
@@ -26,7 +28,11 @@ import { getAuth } from "@firebase/auth"; // Import Firebase authentication;
 import Index from "./Screens/Index.js";
 import { View } from "react-native";
 import ASearchScreen from "./Screens/Agency/ASearchScreen.js";
+import ProfileScreen from "./Screens/Passenger/ProfileScreen.js";
 import { UserProvider } from "./Contexts/UserContext.js";
+import Tickets from "./Screens/Passenger/Tickets.js";
+import ScanTicket from "./Screens/Agency/ScanTicket.js";
+import SearchScreen from "./Screens/Passenger/SearchScreen.js";
 
 // to ensure compatibility
 if (!global.btoa) {
@@ -96,6 +102,56 @@ export default function App() {
     return (
       <Tab.Navigator>
         <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            tabBarLabel: "Home",
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Entypo name="home" size={24} color="#3498DB" />
+              ) : (
+                <AntDesign name="home" size={24} color="#3498DB" />
+              ),
+          }}
+        />
+
+        <Tab.Screen
+          name="MyTicket"
+          component={Tickets}
+          options={{
+            tabBarLabel: "my tickets",
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Ionicons name="ticket" size={24} color="#3498DB" />
+              ) : (
+                <Ionicons name="ticket-outline" size={24} color="#3498DB" />
+              ),
+          }}
+        />
+
+        <Tab.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            tabBarLabel: "Profile",
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Ionicons name="person-sharp" size={24} color="#3498DB" />
+              ) : (
+                <Ionicons name="person-outline" size={24} color="#3498DB" />
+              ),
+          }}
+        />
+      </Tab.Navigator>
+    );
+  };
+  const ABottomTabs = () => {
+    return (
+      <Tab.Navigator>
+        <Tab.Screen
           name="AHome"
           component={AHomeScreen}
           options={{
@@ -124,7 +180,28 @@ export default function App() {
               ),
           }}
         />
-
+        <Tab.Screen
+          name="Scan"
+          component={ScanTicket}
+          options={{
+            tabBarLabel: "Scan",
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <MaterialCommunityIcons
+                  name="qrcode-scan"
+                  size={24}
+                  color="#3498DB"
+                />
+              ) : (
+                <MaterialIcons
+                  name="qr-code-scanner"
+                  size={24}
+                  color="#3498DB"
+                />
+              ),
+          }}
+        />
         <Tab.Screen
           name="AProfile"
           component={AProfileScreen}
@@ -169,21 +246,22 @@ export default function App() {
             <Stack.Screen
               name="LoginScreen"
               component={LoginScreen}
-              options={{
-                headerTitle: "Log In",
-                headerTitleStyle: { marginLeft: 85 },
-              }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="ALoginScreen"
               component={ALoginScreen}
-              options={{
-                headerTitle: "Log In",
-                headerTitleStyle: { marginLeft: 85 },
-              }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="Amain"
+              component={ABottomTabs}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="main"
               component={BottomTabs}
               options={{
                 headerShown: false,
@@ -192,6 +270,13 @@ export default function App() {
             <Stack.Screen
               name="ASearch"
               component={ASearchScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="Search"
+              component={SearchScreen}
               options={{
                 headerShown: false,
               }}

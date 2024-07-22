@@ -16,6 +16,7 @@ import { getDoc, doc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../../Contexts/UserContext";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { ActivityIndicator } from "react-native";
 
 const ALoginScreen = () => {
   const navigation = useNavigation();
@@ -34,6 +35,7 @@ const ALoginScreen = () => {
   }, [auser]);
 
   const handleLogin = async () => {
+    <ActivityIndicator size="large" color="#3498DB" />;
     if (Email === "" || password === "") {
       showMessage({
         message: "Fields cannnot be empty",
@@ -177,19 +179,27 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "white",
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   loginButtonstyle: {
-    marginTop: 20,
+    marginTop: 40,
     backgroundColor: "#3498DB", //"#788eec",
     width: 300,
     color: "white",
     padding: 10,
     borderRadius: 10,
     fontWeight: "bold",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 4,
   },
   Image: {
-    marginTop: 70,
-    marginBottom: 80,
+    marginTop: 130,
+    marginBottom: 100,
     width: 100,
     height: 100,
     alignSelf: "center",
@@ -197,6 +207,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 3,
     borderColor: "#3498DB",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   text: {
     color: "#17ff",

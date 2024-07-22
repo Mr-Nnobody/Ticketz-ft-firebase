@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -13,8 +13,9 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { showMessage } from "react-native-flash-message";
-import { collection, setDoc, doc } from "firebase/firestore";
+import { setDoc, doc } from "firebase/firestore";
 import { database } from "../../firebase/config";
+import { UserContext } from "../../Contexts/UserContext";
 
 const ARegistrationScreen = ({ navigation }) => {
   const auth = getAuth();
@@ -23,6 +24,15 @@ const ARegistrationScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const { auser, auserId, setAuser, setAuserId } = useContext(UserContext);
+
+  //..
+  useEffect(() => {
+    console.log("Saving user data in context.......");
+    console.log("........................");
+    console.log("Updated auser:", auser);
+    console.log("Updated auserId:", auserId);
+  }, [auser]);
 
   const handleSignup = () => {
     // registration logic here
@@ -52,13 +62,15 @@ const ARegistrationScreen = ({ navigation }) => {
           agencyName: agencyName,
         };
         setDoc(doc(database, "agencies", uid), data)
-          .then(() => {
+          .then((documents) => {
             showMessage({
               message: "Account Created Successfully",
               type: "success",
               duration: 4000,
             });
-            navigation.replace("Amain", { data: data });
+            setAuserId(uid);
+            setAuser(documents.data());
+            navigation.replace("Amain");
           })
           .catch((error) => {
             showMessage({
@@ -186,12 +198,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  nameinput: {
-    borderWidth: 2,
-    borderColor: "gray",
-    borderRadius: 10,
-    padding: 5,
-  },
+
   image: {
     marginTop: 110,
     marginBottom: 70,
@@ -202,10 +209,14 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 3,
     borderColor: "#3498DB",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   inputcontainer: {
     borderColor: "white",
-    marginBottom: 30,
+    marginBottom: 20,
     borderWidth: 2,
     padding: 10,
     paddingLeft: 20,
@@ -213,6 +224,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "white",
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   signupButtonstyle: {
     backgroundColor: "#3498DB",
@@ -221,6 +236,10 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 10,
     borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 4,
   },
   loginbutton: {
     fontSize: 18,

@@ -17,7 +17,13 @@ import {
   query,
   onSnapshot,
 } from "firebase/firestore";
-import { useEffect, useContext, useLayoutEffect, useState } from "react";
+import {
+  useEffect,
+  useContext,
+  useLayoutEffect,
+  useState,
+  useMemo,
+} from "react";
 import CustomButton from "../../components/CustomButton";
 import { showMessage } from "react-native-flash-message";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -25,7 +31,6 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "react-native-ui-datepicker";
 import dayjs from "dayjs";
 import { UserContext } from "../../Contexts/UserContext";
-import AViewTicket from "./AViewTicket.js";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -33,8 +38,9 @@ const HomeScreen = () => {
   const [destination, setDestination] = useState("");
   const [date, setDate] = useState(dayjs());
   const [agency, setAgency] = useState("");
-  const { auser, setAuser, auserId, setAuserId, view, setView } =
+  const { auser, setAuser, auserId, setAuserId, setTicket, view, setView } =
     useContext(UserContext);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -52,12 +58,14 @@ const HomeScreen = () => {
         shadowColor: "transparent",
       },
       headerRight: () => (
-        <Ionicons
-          name="notifications-outline"
-          size={24}
-          color="white"
-          style={{ marginRight: 12 }}
-        />
+        <Pressable onPress={() => navigation.navigate("ASearch")}>
+          <Feather
+            name="search"
+            size={24}
+            color="white"
+            style={{ marginRight: 30 }}
+          />
+        </Pressable>
       ),
     });
   }, []);
@@ -87,6 +95,7 @@ const HomeScreen = () => {
     if (auserId) {
       unsubscribe = fetchTickets(auserId, (ticketsList) => {
         setTickets(ticketsList);
+        setTicket(ticketsList);
         setLoading(false);
       });
     }
@@ -99,49 +108,47 @@ const HomeScreen = () => {
     };
   }, [auserId]); // Dependency on user to refetch if user changes
 
-  const handleView = ({ item }) => {
+  const handleView = (item) => {
     setView(item);
     navigation.navigate("AView");
     console.log(view);
   };
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={({ item }) => handleView({ item })}
-    >
-      <View style={styles.ticketItem}>
-        <Image
-          style={styles.image}
-          source={require("../../assets/ticket1.png")}
-        />
-        <View>
-          <Text style={styles.ticketText}>
-            From: {"  "}
-            {item.city}
-            {"("}
-            {new Date(item.time).toLocaleTimeString()}
-            {")"}
-          </Text>
-          <Text style={styles.ticketText}>
-            To: {"  "}
-            {item.destination}
-          </Text>
-          <Text style={styles.ticketText}>
-            Date: {"  "}
-            {new Date(item.date).toDateString()}
-          </Text>
-          <Text style={styles.ticketText}>
-            Available: {"  "}
-            {item.available} {"  "}Left
-          </Text>
-          <Text style={styles.ticketText}>Price: {item.price} XAF</Text>
-          {/* <Text style={styles.ticketText}>
-          Time: {new Date(item.time).toLocaleTimeString()}
-        </Text> */}
+
+  //
+  const renderItem = useMemo(() => {
+    return ({ item }) => (
+      <TouchableOpacity activeOpacity={0.7} onPress={() => handleView(item)}>
+        <View style={styles.ticketItem}>
+          <Image
+            style={styles.image}
+            source={require("../../assets/ticket1.png")}
+          />
+          <View>
+            <Text style={styles.ticketText}>
+              From: {"  "}
+              {item.city}
+            </Text>
+            <Text style={styles.ticketText}>
+              To: {"  "}
+              {item.destination}
+            </Text>
+            <Text style={styles.ticketText}>
+              Date: {"  "}
+              {new Date(item.date).toDateString()}
+            </Text>
+            <Text style={styles.ticketText}>
+              Time:{"  "} {new Date(item.time).toLocaleTimeString()}
+            </Text>
+            <Text style={styles.ticketText}>
+              Available: {"  "}
+              {item.available} {"  "}Left
+            </Text>
+            <Text style={styles.ticketText}>Price: {item.price} XAF</Text>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  }, []);
 
   if (loading) {
     return (
@@ -153,8 +160,8 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View>
-        <View
+      {/* <View> */}
+      {/* <View
           style={{
             margin: 20,
             borderColor: "#3498DB",
@@ -162,8 +169,8 @@ const HomeScreen = () => {
             borderRadius: 6,
           }}
         >
-          {/*Destination*/}
-          <Pressable
+          Destination */}
+      {/* <Pressable
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -172,28 +179,18 @@ const HomeScreen = () => {
               borderColor: "#3498DB",
               borderWidth: 2,
               paddingVertical: 15,
-            }}
-          >
-            <Feather name="search" size={24} color="black" />
+            }} */}
+      {/* > */}
+      {/* <Feather name="search" size={24} color="black" />
             <TextInput
               placeholderTextColor="black"
               placeholder={"Enter Your Destination"}
-            />
-          </Pressable>
+            /> */}
+      {/* </Pressable> */}
 
-          {/*Date*/}
-          <Pressable
-            onPress={() => {
-              return (
-                <DateTimePicker
-                  mode="single"
-                  locale="en"
-                  date={date}
-                  onChange={(params) => setDate(params.date)}
-                  selectedItemColor="#3498DB"
-                />
-              );
-            }}
+      {/*Date*/}
+      {/* <Pressable
+            onPress={() => setShowDatePicker(true)}
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -203,12 +200,26 @@ const HomeScreen = () => {
               borderWidth: 2,
               paddingVertical: 15,
             }}
-          >
-            <Feather name="calendar" size={24} color="black" />
+          > */}
+      {/* <Feather name="calendar" size={24} color="black" />
+            <Text>{dayjs(date).format("MMMM D, YYYY")}</Text>
           </Pressable>
 
-          {/*Search */}
-          <Pressable
+          {showDatePicker && (
+            <DateTimePicker
+              mode="single"
+              date={date}
+              onChange={(params) => {
+                setDate(params.date);
+                setShowDatePicker(false);
+              }}
+              onClose={() => setShowDatePicker(false)}
+              selectedItemColor="#3498DB"
+            />
+          )} */}
+
+      {/*Search */}
+      {/* <Pressable
             onPress={() => navigation.navigate("ASearch")}
             style={{
               flexDirection: "row",
@@ -232,16 +243,16 @@ const HomeScreen = () => {
               Search
             </Text>
           </Pressable>
-        </View>
+        </View> */}
 
-        <FlatList
-          data={tickets}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-        />
-      </View>
+      <FlatList
+        data={tickets}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContainer}
+      />
     </View>
+    // </View>
   );
 };
 export default HomeScreen;
@@ -272,9 +283,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   ticketText: {
-    fontSize: 16,
     marginBottom: 5,
-    fontWeight: "bold",
     marginTop: -3,
   },
   loading: {

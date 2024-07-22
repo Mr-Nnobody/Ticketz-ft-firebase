@@ -126,10 +126,10 @@ const AddTicket = () => {
 
           <View style={{ marginTop: 20 }}>
             <View style={styles.text}>
-              <Text style={{ fontSize: 20 }}>Time: </Text>
+              <Text>Time: </Text>
               <Pressable onPress={() => setShowTimePicker(true)}>
                 <TextInput
-                  style={{ fontSize: 20, textAlign: "center" }}
+                  style={{ textAlign: "center" }}
                   placeholder="Select Time"
                   value={time ? time.toLocaleTimeString("en-US") : ""}
                   editable={false}
@@ -145,43 +145,43 @@ const AddTicket = () => {
               )}
             </View>
             <View style={styles.text}>
-              <Text style={{ fontSize: 20 }}>Departure: </Text>
+              <Text>Departure: </Text>
               <TextInput
                 placeholderTextColor="gray"
                 placeholder={"Enter Departure city"}
                 value={city}
                 onChangeText={setCity}
                 autoCapitalize="words"
-                style={{ fontSize: 20, textAlign: "center" }}
+                style={{ textAlign: "center" }}
               />
             </View>
             <View style={styles.text}>
-              <Text style={{ fontSize: 20 }}>Destination: </Text>
+              <Text>Destination: </Text>
               <TextInput
                 placeholderTextColor="gray"
                 placeholder={"Enter Destination"}
                 value={destination}
                 onChangeText={setDestination}
                 autoCapitalize="words"
-                style={{ fontSize: 20, textAlign: "center" }}
+                style={{ textAlign: "center" }}
               />
             </View>
             <View style={styles.text}>
-              <Text style={{ fontSize: 20 }}>Available: </Text>
+              <Text>Available: </Text>
               <TextInput
                 placeholderTextColor="gray"
                 placeholder={"Enter Amount Available"}
                 value={available.toString()}
                 onChangeText={setAvailable}
                 keyboardType="number-pad"
-                style={{ fontSize: 20, textAlign: "center" }}
+                style={{ textAlign: "center" }}
               />
             </View>
             <View style={styles.text}>
-              <Text style={{ fontSize: 20 }}>Date: </Text>
+              <Text>Date: </Text>
               <Pressable onPress={() => setShowDatePicker(true)}>
                 <TextInput
-                  style={{ fontSize: 20, textAlign: "center", color: "gray" }}
+                  style={{ textAlign: "center", color: "gray" }}
                   placeholder="Select Date"
                   value={date.toDateString()}
                   editable={false}
@@ -198,14 +198,14 @@ const AddTicket = () => {
             </View>
 
             <View style={styles.text}>
-              <Text style={{ fontSize: 20 }}>Price: </Text>
+              <Text>Price: </Text>
               <TextInput
                 placeholderTextColor="gray"
                 placeholder={"Enter Price"}
                 value={price}
                 onChangeText={setPrice}
                 keyboardType="number-pad"
-                style={{ fontSize: 20, textAlign: "center" }}
+                style={{ textAlign: "center" }}
               />
             </View>
             <View>
@@ -239,6 +239,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 3,
     borderColor: "white",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   text: {
     justifyContent: "space-between",
@@ -251,6 +255,10 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     color: "black",
     width: 300,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   Button: {
     backgroundColor: "#3498DB",
@@ -259,5 +267,9 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 10,
     borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
 });
