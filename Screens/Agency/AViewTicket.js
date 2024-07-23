@@ -18,7 +18,6 @@ const AViewTicket = () => {
       title: "Ticket Details",
       headerTitleStyle: {
         fontSize: 30,
-        fontWeight: "bold",
         color: "white",
       },
       headerStyle: {

@@ -28,28 +28,28 @@ const ProfileScreen = () => {
       },
     });
   }, []);
-  const handleLogOut = () => {
+  const handleLogOut = async () => {
     //...logic
-    signOut(auth)
-      .then(() => {
-        // Sign-out successful.
-        showMessage({
-          message: "Log Out Successful",
-          type: "success",
-          duration: 4000,
-        });
-        navigation.replace("ALoginScreen");
-        setUser([]);
-        setUserId(null);
-      })
-      .catch((error) => {
-        // An error happened.
-        showMessage({
-          message: "Failed to Log out " + error.message,
-          type: "danger",
-          duration: 4000,
-        });
+    try {
+      await signOut(auth);
+
+      // Sign-out successful.
+      showMessage({
+        message: "Log Out Successful",
+        type: "success",
+        duration: 1000,
       });
+      navigation.replace("LoginScreen");
+      setUser([]);
+      setUserId(null);
+    } catch (error) {
+      // An error happened.
+      showMessage({
+        message: "Failed to Log out " + error.message,
+        type: "danger",
+        duration: 3000,
+      });
+    }
   };
 
   return (
@@ -58,6 +58,10 @@ const ProfileScreen = () => {
         <View style={styles.text}>
           <Text style={{ fontSize: 20 }}>Name: </Text>
           <Text style={{ fontSize: 20 }}>{user.fullName}</Text>
+        </View>
+        <View style={styles.text}>
+          <Text style={{ fontSize: 20 }}>City: </Text>
+          <Text style={{ fontSize: 20 }}>{user.city}</Text>
         </View>
         <View style={styles.text}>
           <Text style={{ fontSize: 20 }}>Email: </Text>
@@ -93,6 +97,10 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     color: "black",
     width: 300,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   logout: {
     marginTop: 100,
@@ -102,5 +110,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     marginBottom: 30,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
 });

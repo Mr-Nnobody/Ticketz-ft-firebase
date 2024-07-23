@@ -65,8 +65,8 @@ const AddTicket = () => {
   const handleAddTicket = async () => {
     if (city === "" || destination === "" || price === "") {
       showMessage({
-        message: "You can't add ticket for today!",
-        type: "warning",
+        message: "Enter all fields!",
+        type: "danger",
         duration: 4000,
       });
       return;

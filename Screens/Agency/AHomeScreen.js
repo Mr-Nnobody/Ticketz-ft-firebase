@@ -3,20 +3,12 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  ScrollView,
   Pressable,
-  TextInput,
   Image,
   TouchableOpacity,
 } from "react-native";
 import { database } from "../../firebase/config";
-import {
-  collection,
-  getDocs,
-  where,
-  query,
-  onSnapshot,
-} from "firebase/firestore";
+import { collection, where, query, onSnapshot } from "firebase/firestore";
 import {
   useEffect,
   useContext,
@@ -24,23 +16,17 @@ import {
   useState,
   useMemo,
 } from "react";
-import CustomButton from "../../components/CustomButton";
 import { showMessage } from "react-native-flash-message";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { Feather, Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "react-native-ui-datepicker";
-import dayjs from "dayjs";
+import { useNavigation } from "@react-navigation/native";
+import { Feather } from "@expo/vector-icons";
 import { UserContext } from "../../Contexts/UserContext";
+import { ActivityIndicator } from "react-native";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
 
-  const [destination, setDestination] = useState("");
-  const [date, setDate] = useState(dayjs());
-  const [agency, setAgency] = useState("");
   const { auser, setAuser, auserId, setAuserId, setTicket, view, setView } =
     useContext(UserContext);
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -153,6 +139,7 @@ const HomeScreen = () => {
   if (loading) {
     return (
       <View style={styles.loading}>
+        <ActivityIndicator size="large" color="#3498DB" />
         <Text>Loading tickets...</Text>
       </View>
     );
@@ -160,96 +147,16 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* <View> */}
-      {/* <View
-          style={{
-            margin: 20,
-            borderColor: "#3498DB",
-            borderWidth: 3,
-            borderRadius: 6,
-          }}
-        >
-          Destination */}
-      {/* <Pressable
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 10,
-              paddingHorizontal: 10,
-              borderColor: "#3498DB",
-              borderWidth: 2,
-              paddingVertical: 15,
-            }} */}
-      {/* > */}
-      {/* <Feather name="search" size={24} color="black" />
-            <TextInput
-              placeholderTextColor="black"
-              placeholder={"Enter Your Destination"}
-            /> */}
-      {/* </Pressable> */}
-
-      {/*Date*/}
-      {/* <Pressable
-            onPress={() => setShowDatePicker(true)}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 10,
-              paddingHorizontal: 10,
-              borderColor: "#3498DB",
-              borderWidth: 2,
-              paddingVertical: 15,
-            }}
-          > */}
-      {/* <Feather name="calendar" size={24} color="black" />
-            <Text>{dayjs(date).format("MMMM D, YYYY")}</Text>
-          </Pressable>
-
-          {showDatePicker && (
-            <DateTimePicker
-              mode="single"
-              date={date}
-              onChange={(params) => {
-                setDate(params.date);
-                setShowDatePicker(false);
-              }}
-              onClose={() => setShowDatePicker(false)}
-              selectedItemColor="#3498DB"
-            />
-          )} */}
-
-      {/*Search */}
-      {/* <Pressable
-            onPress={() => navigation.navigate("ASearch")}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 10,
-              paddingHorizontal: 10,
-              borderColor: "#3498DB",
-              borderWidth: 2,
-              paddingVertical: 15,
-              backgroundColor: "#3498DB",
-            }}
-          >
-            <Text
-              style={{
-                textAlign: "center",
-                fontSize: 15,
-                fontWeight: "500",
-                color: "white",
-              }}
-            >
-              Search
-            </Text>
-          </Pressable>
-        </View> */}
-
       <FlatList
         data={tickets}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={() => (
+          <View style={styles.noTickets}>
+            <Text>No tickets found. Try adjusting your search.</Text>
+          </View>
+        )}
       />
     </View>
     // </View>
@@ -285,6 +192,12 @@ const styles = StyleSheet.create({
   ticketText: {
     marginBottom: 5,
     marginTop: -3,
+  },
+  noTickets: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: "100%",
   },
   loading: {
     flex: 1,

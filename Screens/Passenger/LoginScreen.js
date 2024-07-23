@@ -11,7 +11,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"; //import the eye ic
 import CustomButton from "../../components/CustomButton";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { showMessage } from "react-native-flash-message";
-import { collection } from "firebase/firestore";
+import { collection, onSnapshot, getDoc, doc } from "firebase/firestore";
 import { database } from "../../firebase/config";
 import { UserContext } from "../../Contexts/UserContext";
 
@@ -21,15 +21,34 @@ const ALoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const { user, setUser, userId, setUserId } = useContext(UserContext);
+  const { user, setUser, userId, setUserId, setAgencies } =
+    useContext(UserContext);
 
   //..printing context user data to ensure data is updated
   useEffect(() => {
+    const unsubscribeAgencies = fetchAgencies((agenciesList) => {
+      setAgencies(agenciesList);
+    });
     console.log("Saving user data in context.......");
     console.log("........................");
     console.log("Updated auser:", user);
     console.log("Updated auserId:", userId);
+    return () => {
+      unsubscribeAgencies();
+    };
   }, [user]);
+  // fetch agency list
+  const fetchAgencies = (callback) => {
+    const agenciesRef = collection(database, "agencies");
+    const unsubscribe = onSnapshot(agenciesRef, (querySnapshot) => {
+      const agenciesList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      callback(agenciesList);
+    });
+    return unsubscribe;
+  };
 
   const handleLogin = () => {
     // Handle login logic here
@@ -57,7 +76,7 @@ const ALoginScreen = ({ navigation }) => {
           showMessage({
             message: "Log in Successful",
             type: "success",
-            duration: 4000,
+            duration: 2000,
           });
           setUserId(userCredentials.user.uid);
           setUser(documents.data());
@@ -68,7 +87,7 @@ const ALoginScreen = ({ navigation }) => {
         showMessage({
           message: "Invalid email or password " + e.message,
           type: "danger",
-          duration: 4000,
+          duration: 3000,
         });
       });
   };

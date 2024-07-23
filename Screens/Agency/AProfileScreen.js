@@ -9,7 +9,8 @@ import { showMessage } from "react-native-flash-message";
 const AProfileScreen = () => {
   const auth = getAuth();
   const navigation = useNavigation();
-  const { auser, setAuser, setAuserId } = useContext(UserContext);
+  const { auser, setAuser, setAuserId, setTicket, setView } =
+    useContext(UserContext);
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -28,30 +29,31 @@ const AProfileScreen = () => {
       },
     });
   }, []);
-  const handleLogOut = () => {
+  const handleLogOut = async () => {
     //...logic
-    signOut(auth)
-      .then(() => {
-        // Sign-out successful.
-        showMessage({
-          message: "Log Out Successful",
-          type: "success",
-          duration: 4000,
-        });
-        navigation.replace("ALoginScreen");
-        setAuser([]);
-        setAuserId(null);
-        setTicket([]);
-        setView([]);
-      })
-      .catch((error) => {
-        // An error happened.
-        showMessage({
-          message: "Failed to Log out" + error.message,
-          type: "danger",
-          duration: 4000,
-        });
+    try {
+      await signOut(auth);
+
+      // Sign-out successful.
+      showMessage({
+        message: "Log Out Successful",
+        type: "success",
+        duration: 2000,
       });
+      navigation.replace("ALoginScreen");
+      setAuser([]);
+      setAuserId(null);
+      setTicket([]);
+      setView([]);
+    } catch (error) {
+      // An error happened.
+      showMessage({
+        message: "Failed to Log out" + error.message,
+        type: "danger",
+        duration: 3000,
+      });
+      return;
+    }
   };
 
   return (

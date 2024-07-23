@@ -19,7 +19,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const SearchScreen = () => {
   const navigation = useNavigation();
-  const { ticket, setView } = useContext(UserContext);
+  const { ticket, setView, agencies } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -31,9 +31,13 @@ const SearchScreen = () => {
 
   const handleView = (item) => {
     setView(item);
-    navigation.navigate("AView");
+    navigation.navigate("View");
   };
-
+  // function to find agency
+  const getAgencyName = (agencyId) => {
+    const matchingAgency = agencies.find((a) => a.id === agencyId);
+    return matchingAgency ? matchingAgency.agencyName : "Unknown Agency";
+  };
   const renderItem = ({ item }) => (
     <TouchableOpacity activeOpacity={0.7} onPress={() => handleView(item)}>
       <View style={styles.ticketItem}>
@@ -41,7 +45,11 @@ const SearchScreen = () => {
           style={styles.image}
           source={require("../../assets/ticket1.png")}
         />
-        <View>
+        <View style={{ marginTop: -3 }}>
+          <Text style={styles.ticketText}>
+            Agency: {"  "}
+            {getAgencyName(item.agencyID)}
+          </Text>
           <Text style={styles.ticketText}>From: {item.city}</Text>
           <Text style={styles.ticketText}>To: {item.destination}</Text>
           <Text style={styles.ticketText}>
@@ -147,7 +155,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   ticketText: {
-    marginTop: -3,
+    marginTop: -5,
     marginBottom: 5,
   },
   noTickets: {

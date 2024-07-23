@@ -16,6 +16,8 @@ const UserProvider = ({ children }) => {
   const [view, setView] = useState([]);
   //tickets data for search functionality
   const [ticket, setTicket] = useState([]);
+  //agency data for quick agency name display
+  const [agencies, setAgencies] = useState([]);
   return (
     <UserContext.Provider
       value={{
@@ -31,6 +33,8 @@ const UserProvider = ({ children }) => {
         setView,
         ticket,
         setTicket,
+        agencies,
+        setAgencies,
       }}
     >
       {children}

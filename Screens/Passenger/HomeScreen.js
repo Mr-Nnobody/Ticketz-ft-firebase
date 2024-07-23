@@ -3,278 +3,180 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  ScrollView,
   Pressable,
+  Image,
+  TouchableOpacity,
 } from "react-native";
 import { database } from "../../firebase/config";
+import { collection, where, query, onSnapshot } from "firebase/firestore";
 import {
-  collection,
-  where,
-  query,
-  onSnapshot,
-  orderBy,
-} from "firebase/firestore";
-import { useEffect, useLayoutEffect, useState } from "react";
-import CustomButton from "../../components/CustomButton";
+  useEffect,
+  useContext,
+  useLayoutEffect,
+  useState,
+  useMemo,
+} from "react";
 import { showMessage } from "react-native-flash-message";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { Feather, Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "react-native-ui-datepicker";
-import dayjs from "dayjs";
+import { useNavigation } from "@react-navigation/native";
+import { Feather } from "@expo/vector-icons";
+import { UserContext } from "../../Contexts/UserContext";
+import { ActivityIndicator } from "react-native";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const route = useRoute();
-  const [destination, setDestination] = useState("");
-  const [date, setDate] = useState(dayjs());
-  const [agency, setAgency] = useState("");
+
+  const {
+    user,
+    setUser,
+    userId,
+    setUserId,
+    setTicket,
+    view,
+    setView,
+    agencies,
+  } = useContext(UserContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      title: "Welcome", //route.params?.user.agencyName,
+      title: user.fullName,
       headerTitleStyle: {
         fontSize: 30,
         fontWeight: "bold",
         color: "white",
       },
       headerStyle: {
-        alignItems: "center",
         backgroundColor: "#3498DB",
         height: 100,
         borderBottomColor: "transparent",
         shadowColor: "transparent",
       },
       headerRight: () => (
-        <Ionicons
-          name="notifications-outline"
-          size={24}
-          color="white"
-          style={{ marginRight: 12 }}
-        />
+        <Pressable onPress={() => navigation.navigate("Search")}>
+          <Feather
+            name="search"
+            size={24}
+            color="white"
+            style={{ marginRight: 30 }}
+          />
+        </Pressable>
       ),
     });
   }, []);
 
-  // const collectionRef = collection("tickets");
-  const [tickets, setTickets] = useState([]);
+  const fetchTickets = (callback) => {
+    const ticketsRef = collection(database, "tickets");
+    const q = query(ticketsRef);
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const ticketsList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      callback(ticketsList);
+    });
 
-  // //sample getting data from firebase
-  // const getData = () => {
-  //   getDocs(collectionRef).then((response) => {
-  //     setData(response.docs);
-  //     <Text>
-  //       {response.docs.map((item) => {
-  //         return { ...item.data(), id: item.id };
-  //       })}
-  //     </Text>;
-  //   });
-  // };
-  // setData(
-  //   getDocs(collectionRef).then((response) => {
-  //     return response.docs.map(item);
-  //   })
-  // );
-  //const route = useRoute();
-  const ticketsRef = collection(database, "tickets");
-  //const { user } = route.params;
-  const userID = 4; //route.params?.data.id;
-  const data = route.params?.agencyName;
-  console.log(data);
+    // Return the unsubscribe function to allow cleanup
+    return unsubscribe;
+  };
+
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // update agencies and tickets data
   useEffect(() => {
-    const queryRef = query(
-      ticketsRef,
-      where("authorID", "==", userID),
-      orderBy("createdAt", "desc")
-    );
-    const unsubscribe = onSnapshot(
-      queryRef,
-      (querySnapshot) => {
-        const newTickets = [];
-        querySnapshot.forEach((doc) => {
-          const ticket = doc.data();
-          ticket.id = doc.id;
-          newTickets.push(ticket);
-        });
-        setTickets(newTickets);
-      },
-      (error) => {
-        showMessage({
-          message: error.message,
-          type: "danger",
-          duration: 100000,
-        });
-      }
-    );
+    const unsubscribe = fetchTickets((ticketsList) => {
+      setTickets(ticketsList);
+      setTicket(ticketsList);
+      setLoading(false);
+    });
+
+    console.log(tickets);
+    console.log(agencies);
     return () => {
-      unsubscribe;
+      unsubscribe();
+      // unsubscribeAgencies();
     };
   }, []);
 
-  const handleAddTicket = () => {
-    navigation.navigate("AddTicket");
+  // function to find agency
+  const getAgencyName = (agencyId) => {
+    const matchingAgency = agencies.find((a) => a.id === agencyId);
+    return matchingAgency ? matchingAgency.agencyName : "Unknown Agency";
   };
 
-  const handleViewTicket = () => {
-    navigation.navigate("AView");
+  const handleView = (item) => {
+    setView(item);
+    navigation.navigate("View");
+    console.log(view);
   };
 
-  const handleUpdateData = () => {
-    navigation.navigate("AUpdate");
-  };
+  // function to serve tickets
+  const renderItem = useMemo(() => {
+    return ({ item }) => (
+      <TouchableOpacity activeOpacity={0.7} onPress={() => handleView(item)}>
+        <View style={styles.ticketItem}>
+          <Image
+            style={styles.image}
+            source={require("../../assets/ticket1.png")}
+          />
+          <View style={{ marginTop: -3 }}>
+            <Text style={styles.ticketText}>
+              Agency: {"  "}
+              {getAgencyName(item.agencyID)}
+            </Text>
+            <Text style={styles.ticketText}>
+              From: {"  "}
+              {item.city}
+            </Text>
+            <Text style={styles.ticketText}>
+              To: {"  "}
+              {item.destination}
+            </Text>
+            <Text style={styles.ticketText}>
+              Date: {"  "}
+              {new Date(item.date).toDateString()}
+            </Text>
+            <Text style={styles.ticketText}>
+              Time:{"  "} {new Date(item.time).toLocaleTimeString()}
+            </Text>
+            <Text style={styles.ticketText}>
+              Available: {"  "}
+              {item.available} {"  "}Left
+            </Text>
+            <Text style={styles.ticketText}>
+              Price: {"  "}
+              {item.price} XAF
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }, []);
 
-  const renderTicket = ({ item, index }) => {
+  if (loading) {
     return (
-      <View style={styles.ticket}>
-        <Text>
-          {index}. (<Text>Departure City: {item.depCity}</Text>
-          <Text>Arrival City: {item.arrCity}</Text>
-          <Text>Departure Time: {item.deptime}</Text>
-          <Text>Arrival Time: {item.est_arrtime}</Text>
-          <Text>Date: {item.date}</Text>
-          <Text>Price: {item.price}</Text>)
-        </Text>
-        <CustomButton
-          title="Update"
-          onPress={() => handleUpdateData(item)}
-          style={styles.updateButton}
-        />
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color="#3498DB" />
+        <Text>Loading tickets...</Text>
       </View>
     );
-  };
+  }
 
   return (
-    // <View style={styles.container}>
-    //   <FlatList
-    //     data={data}
-    //     renderItem={(item) => {
-    //       return (
-    //         <View style={StyleSheetList.dataItem}>
-    //           <Text> {item.data()}</Text>
-    //         </View>
-    //       );
-    //     }}
-    //     alwaysBounceVertical={false}
-    //   />
-    //   <View>
-    //     <CustomButton
-    //       title="Add"
-    //       onPress={handleAddTicket}
-    //       style={styles.addbutton}
-    //     />
-    //   </View>
-    // </View>
     <View style={styles.container}>
-      <View>
-        <ScrollView>
-          <View
-            style={{
-              margin: 20,
-              borderColor: "#3498DB",
-              borderWidth: 3,
-              borderRadius: 6,
-            }}
-          >
-            {/*Destination*/}
-            <Pressable
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                paddingHorizontal: 10,
-                borderColor: "#3498DB",
-                borderWidth: 2,
-                paddingVertical: 15,
-              }}
-            >
-              <Feather name="search" size={24} color="black" />
-              <TextInput
-                placeholderTextColor="black"
-                placeholder={
-                  route?.params ? route.params.input : "Enter Your Destination"
-                }
-              />
-            </Pressable>
-
-            {/*Date*/}
-            <Pressable
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                paddingHorizontal: 10,
-                borderColor: "#3498DB",
-                borderWidth: 2,
-                paddingVertical: 15,
-              }}
-            >
-              <Feather name="calendar" size={24} color="black" />
-              <DateTimePicker
-                mode="single"
-                locale="en"
-                date={date}
-                onChange={(params) => setDate(params.date)}
-                selectedItemColor="#3498DB"
-              />
-            </Pressable>
-
-            {/*Agency */}
-            <Pressable
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                paddingHorizontal: 10,
-                borderColor: "#3498DB",
-                borderWidth: 2,
-                paddingVertical: 15,
-              }}
-            >
-              <Ionicons name="bus-outline" size={24} color="black" />
-              <TextInput placeholder="Enter Agency Name" />
-            </Pressable>
-
-            {/*Search */}
-            <Pressable
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                paddingHorizontal: 10,
-                borderColor: "#3498DB",
-                borderWidth: 2,
-                paddingVertical: 15,
-                backgroundColor: "#3498DB",
-              }}
-            >
-              <Text
-                style={{
-                  textAlign: "center",
-                  fontSize: 15,
-                  fontWeight: "500",
-                  color: "white",
-                }}
-              >
-                Search
-              </Text>
-            </Pressable>
-          </View>
-        </ScrollView>
-      </View>
-
       <FlatList
         data={tickets}
-        renderItem={renderTicket}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={() => (
+          <View style={styles.noTickets}>
+            <Text>No tickets found. Try adjusting your search.</Text>
+          </View>
+        )}
       />
-      <View>
-        <CustomButton
-          title="Add"
-          onPress={handleAddTicket}
-          style={styles.addbutton}
-        />
-      </View>
     </View>
+    // </View>
   );
 };
 export default HomeScreen;
@@ -284,14 +186,49 @@ const styles = StyleSheet.create({
     flex: 1,
     alignContent: "center",
     alignItems: "center",
+    backgroundColor: "#EEEEEE",
   },
-  addbutton: {
-    position: "absolute",
-    bottom: 80,
-    left: 80,
+  listContainer: {
     padding: 10,
-    backgroundColor: "#3498DB",
-    width: 60,
-    borderRadius: 100,
+  },
+  ticketItem: {
+    flexDirection: "row",
+    backgroundColor: "#D9D9D9",
+    padding: 15,
+    marginVertical: 8,
+    // marginHorizontal: 16,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+    width: 340,
+    height: 150,
+    justifyContent: "space-between",
+  },
+  ticketText: {
+    marginBottom: 5,
+    marginTop: -5,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: 150,
+    height: 130,
+    borderRadius: 30,
+    overflow: "hidden",
+    borderWidth: 3,
+    borderColor: "white",
+    marginLeft: -10,
+    marginTop: -5,
+  },
+  noTickets: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: "100%",
   },
 });

@@ -33,6 +33,12 @@ import { UserProvider } from "./Contexts/UserContext.js";
 import Tickets from "./Screens/Passenger/Tickets.js";
 import ScanTicket from "./Screens/Agency/ScanTicket.js";
 import SearchScreen from "./Screens/Passenger/SearchScreen.js";
+import ViewTicket from "./Screens/Passenger/ViewTricket.js";
+import PurchaseTicket from "./Screens/Passenger/PurchaseTicket.js";
+import MoMoPaymentScreen from "./Screens/Passenger/Payment.js";
+import PaymentSceen from "./Screens/Passenger/PaymentSceen.js";
+import QRCodeGenerator from "./Screens/Passenger/QRcode.js";
+import TicketCode from "./Screens/Passenger/TicketCode.js";
 
 // to ensure compatibility
 if (!global.btoa) {
@@ -281,6 +287,36 @@ export default function App() {
                 headerShown: false,
               }}
             />
+
+            <Stack.Screen
+              name="Momo"
+              component={MoMoPaymentScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="PaymentScreen"
+              component={PaymentSceen}
+              options={{
+                headerShown: false,
+              }}
+            />
+
+            <Stack.Screen
+              name="QRcode"
+              component={QRCodeGenerator}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="TicketCode"
+              component={TicketCode}
+              options={{
+                headerShown: false,
+              }}
+            />
             <Stack.Screen
               name="ARegistration"
               component={ARegistrationScreen}
@@ -294,14 +330,9 @@ export default function App() {
                 headerTitleStyle: { marginLeft: 85 },
               }}
             />
-            <Stack.Screen
-              name="AView"
-              component={AViewTicket}
-              // options={{
-              //   headerTitle: "Ticket Info",
-              //   headerTitleStyle: { marginLeft: 85 },
-              // }}
-            />
+            <Stack.Screen name="Purchase" component={PurchaseTicket} />
+            <Stack.Screen name="AView" component={AViewTicket} />
+            <Stack.Screen name="View" component={ViewTicket} />
             <Stack.Screen
               name="Update"
               component={Update}
