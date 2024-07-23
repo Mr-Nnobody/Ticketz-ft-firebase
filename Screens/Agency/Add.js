@@ -27,7 +27,7 @@ const AddTicket = () => {
   const [time, setTime] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const { auserId } = useContext(UserContext);
+  const { userId } = useContext(UserContext);
 
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(false);
@@ -75,7 +75,7 @@ const AddTicket = () => {
     try {
       // Create a new ticket object
       const newTicket = {
-        agencyID: auserId,
+        agencyID: userId,
         city,
         destination,
         date: date.toISOString(),

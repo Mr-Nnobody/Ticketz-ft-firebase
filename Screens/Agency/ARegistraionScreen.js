@@ -25,16 +25,16 @@ const ARegistrationScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { auser, auserId, setAuser, setAuserId } = useContext(UserContext);
+  const { user, userId, setUser, setUserId } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
 
   //..
   useEffect(() => {
     console.log("Saving user data in context.......");
     console.log("........................");
-    console.log("Updated auser:", auser);
-    console.log("Updated auserId:", auserId);
-  }, [auser]);
+    console.log("Updated user:", user);
+    console.log("Updated userId:", userId);
+  }, [user]);
 
   const handleSignup = () => {
     // registration logic here
@@ -90,8 +90,8 @@ const ARegistrationScreen = ({ navigation }) => {
               type: "success",
               duration: 4000,
             });
-            setAuserId(uid);
-            setAuser(documents.data());
+            setUserId(uid);
+            setUser(documents.data());
             navigation.replace("Amain");
           })
           .catch((error) => {

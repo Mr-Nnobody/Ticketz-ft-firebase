@@ -28,16 +28,16 @@ const ALoginScreen = () => {
   const [Email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { auser, setAuser, auserId, setAuserId } = useContext(UserContext);
+  const { user, setUser, userId, setUserId } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
 
   //..
   useEffect(() => {
     console.log("Saving user data in context.......");
     console.log("........................");
-    console.log("Updated auser:", auser);
-    console.log("Updated auserId:", auserId);
-  }, [auser]);
+    console.log("Updated user:", user);
+    console.log("Updated userId:", userId);
+  }, [user]);
 
   const handleLogin = async () => {
     if (Email === "" || password === "") {
@@ -67,11 +67,14 @@ const ALoginScreen = () => {
             type: "success",
             duration: 4000,
           });
-          setAuserId(userCredentials.user.uid);
-          setAuser(documents.data());
-          // console.log(uid, documents.data());
-          // console.log(auser);
-          navigation.replace("Amain");
+          setUserId(userCredentials.user.uid);
+          setUser(documents.data());
+          // {
+          //   user.agencyName
+          //     ? navigation.replace("Amain")
+          //     : navigation.navigate("main");
+          // }
+          navigation.navigate("Amain");
         });
       })
       .catch((e) => {

@@ -9,14 +9,18 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; //import the eye icon
 import CustomButton from "../../components/CustomButton";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import {
+  getAuth,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { showMessage } from "react-native-flash-message";
 import { collection, onSnapshot, getDoc, doc } from "firebase/firestore";
 import { database } from "../../firebase/config";
 import { UserContext } from "../../Contexts/UserContext";
 import { ActivityIndicator } from "react-native";
 
-const ALoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation }) => {
   const auth = getAuth();
   const [Email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -83,6 +87,11 @@ const ALoginScreen = ({ navigation }) => {
           });
           setUserId(userCredentials.user.uid);
           setUser(documents.data());
+          // {
+          //   user.fullName
+          //     ? navigation.replace("main")
+          //     : navigation.replace("Amain");
+          // }
           navigation.replace("main");
         });
       })
@@ -213,7 +222,7 @@ const ALoginScreen = ({ navigation }) => {
   );
 };
 
-export default ALoginScreen;
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {

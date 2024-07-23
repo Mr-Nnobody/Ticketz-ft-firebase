@@ -9,7 +9,7 @@ import { showMessage } from "react-native-flash-message";
 const AProfileScreen = () => {
   const auth = getAuth();
   const navigation = useNavigation();
-  const { auser, setAuser, setAuserId, setTicket, setView } =
+  const { user, setUser, setUserId, setTicket, setView } =
     useContext(UserContext);
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -41,8 +41,8 @@ const AProfileScreen = () => {
         duration: 2000,
       });
       navigation.replace("ALoginScreen");
-      setAuser([]);
-      setAuserId(null);
+      setUser([]);
+      setUserId(null);
       setTicket([]);
       setView([]);
     } catch (error) {
@@ -61,11 +61,11 @@ const AProfileScreen = () => {
       <View style={{ marginTop: 30 }}>
         <View style={styles.text}>
           <Text style={{ fontSize: 20 }}>Agency Name: </Text>
-          <Text style={{ fontSize: 20 }}>{auser.agencyName}</Text>
+          <Text style={{ fontSize: 20 }}>{user.agencyName}</Text>
         </View>
         <View style={styles.text}>
           <Text style={{ fontSize: 20 }}>Email: </Text>
-          <Text style={{ fontSize: 20 }}>{auser.email}</Text>
+          <Text style={{ fontSize: 20 }}>{user.email}</Text>
         </View>
       </View>
       <CustomButton

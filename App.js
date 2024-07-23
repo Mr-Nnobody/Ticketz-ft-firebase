@@ -5,7 +5,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./Screens/Passenger/HomeScreen.js";
 import RegistrationScreen from "./Screens/Passenger/RegistrationScreen.js";
 import LoginScreen from "./Screens/Passenger/LoginScreen.js";
-import Add from "./Screens/Agency/AddTicket.js";
 import AHomeScreen from "./Screens/Agency/AHomeScreen.js";
 import ALoginScreen from "./Screens/Agency/ALoginScreen.js";
 import AProfileScreen from "./Screens/Agency/AProfileScreen.js";
@@ -31,7 +30,6 @@ import ASearchScreen from "./Screens/Agency/ASearchScreen.js";
 import ProfileScreen from "./Screens/Passenger/ProfileScreen.js";
 import { UserProvider } from "./Contexts/UserContext.js";
 import Tickets from "./Screens/Passenger/Tickets.js";
-import ScanTicket from "./Screens/Agency/ScanTicket.js";
 import SearchScreen from "./Screens/Passenger/SearchScreen.js";
 import ViewTicket from "./Screens/Passenger/ViewTricket.js";
 import PurchaseTicket from "./Screens/Passenger/PurchaseTicket.js";
@@ -329,14 +327,6 @@ export default function App() {
               name="ARegistration"
               component={ARegistrationScreen}
               options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="AddTicket"
-              component={Add}
-              options={{
-                headerTitle: "Add Ticket",
-                headerTitleStyle: { marginLeft: 85 },
-              }}
             />
             <Stack.Screen name="Purchase" component={PurchaseTicket} />
             <Stack.Screen name="AView" component={AViewTicket} />

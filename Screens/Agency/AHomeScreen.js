@@ -25,13 +25,13 @@ import { ActivityIndicator } from "react-native";
 const HomeScreen = () => {
   const navigation = useNavigation();
 
-  const { auser, setAuser, auserId, setAuserId, setTicket, view, setView } =
+  const { user, setUser, userId, setUserId, setTicket, view, setView } =
     useContext(UserContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      title: auser.agencyName,
+      title: user.agencyName,
       headerTitleStyle: {
         fontSize: 30,
         fontWeight: "bold",
@@ -78,8 +78,8 @@ const HomeScreen = () => {
 
   useEffect(() => {
     let unsubscribe;
-    if (auserId) {
-      unsubscribe = fetchTickets(auserId, (ticketsList) => {
+    if (userId) {
+      unsubscribe = fetchTickets(userId, (ticketsList) => {
         setTickets(ticketsList);
         setTicket(ticketsList);
         setLoading(false);
@@ -92,7 +92,7 @@ const HomeScreen = () => {
         unsubscribe();
       }
     };
-  }, [auserId]); // Dependency on user to refetch if user changes
+  }, [userId]); // Dependency on user to refetch if user changes
 
   const handleView = (item) => {
     setView(item);
