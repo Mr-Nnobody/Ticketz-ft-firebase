@@ -9,17 +9,19 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; //import the eye icon
 import CustomButton from "../../components/CustomButton";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { showMessage } from "react-native-flash-message";
 import { collection, onSnapshot, getDoc, doc } from "firebase/firestore";
 import { database } from "../../firebase/config";
 import { UserContext } from "../../Contexts/UserContext";
+import { ActivityIndicator } from "react-native";
 
 const ALoginScreen = ({ navigation }) => {
   const auth = getAuth();
   const [Email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { user, setUser, userId, setUserId, setAgencies } =
     useContext(UserContext);
@@ -60,6 +62,7 @@ const ALoginScreen = ({ navigation }) => {
       });
       return;
     }
+    setLoading(true);
     //ensuring that when signing in, user data is read from db.
     signInWithEmailAndPassword(auth, Email, password)
       .then((userCredentials) => {
@@ -89,6 +92,9 @@ const ALoginScreen = ({ navigation }) => {
           type: "danger",
           duration: 3000,
         });
+      })
+      .finally(() => {
+        setLoading(false); // Set loading to false when authentication is complete
       });
   };
   const handleSignup = () => {
@@ -97,7 +103,30 @@ const ALoginScreen = ({ navigation }) => {
   };
 
   const handleForgottenPassword = () => {
-    // Handle Forgotten password logic here
+    if (Email === "") {
+      showMessage({
+        message: "Please enter your email address",
+        type: "warning",
+        duration: 3000,
+      });
+      return;
+    }
+
+    sendPasswordResetEmail(auth, Email)
+      .then(() => {
+        showMessage({
+          message: "Password reset email sent. Check your inbox.",
+          type: "success",
+          duration: 4000,
+        });
+      })
+      .catch((error) => {
+        showMessage({
+          message: "Error: " + error.message,
+          type: "danger",
+          duration: 4000,
+        });
+      });
   };
 
   return (
@@ -153,10 +182,17 @@ const ALoginScreen = ({ navigation }) => {
       {/* Login button */}
       <View>
         <CustomButton
-          title="Login"
+          title={
+            loading ? (
+              <ActivityIndicator color="white" style={{ marginLeft: 10 }} />
+            ) : (
+              "Login"
+            )
+          }
           onPress={handleLogin}
           style={styles.loginButtonstyle}
-        />
+          disabled={loading}
+        ></CustomButton>
       </View>
       <View style={styles.footer}>
         <View>

@@ -15,7 +15,11 @@ import { database } from "../../firebase/config";
 import { getDoc, doc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../../Contexts/UserContext";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { ActivityIndicator } from "react-native";
 
 const ALoginScreen = () => {
@@ -25,6 +29,7 @@ const ALoginScreen = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { auser, setAuser, auserId, setAuserId } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
 
   //..
   useEffect(() => {
@@ -35,7 +40,6 @@ const ALoginScreen = () => {
   }, [auser]);
 
   const handleLogin = async () => {
-    <ActivityIndicator size="large" color="#3498DB" />;
     if (Email === "" || password === "") {
       showMessage({
         message: "Fields cannnot be empty",
@@ -44,7 +48,7 @@ const ALoginScreen = () => {
       });
       return;
     }
-
+    setLoading(true);
     //ensuring that when signing in, user data is read from db.
     signInWithEmailAndPassword(auth, Email, password)
       .then((userCredentials) => {
@@ -76,6 +80,9 @@ const ALoginScreen = () => {
           type: "danger",
           duration: 4000,
         });
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
   const handleSignup = () => {
@@ -83,7 +90,30 @@ const ALoginScreen = () => {
     navigation.navigate("ARegistration");
   };
   const handleForgottenPassword = () => {
-    // Handle Forgotten password logic here
+    if (Email === "") {
+      showMessage({
+        message: "Please enter your email address",
+        type: "warning",
+        duration: 3000,
+      });
+      return;
+    }
+
+    sendPasswordResetEmail(auth, Email)
+      .then(() => {
+        showMessage({
+          message: "Password reset email sent. Check your inbox.",
+          type: "success",
+          duration: 4000,
+        });
+      })
+      .catch((error) => {
+        showMessage({
+          message: "Error: " + error.message,
+          type: "danger",
+          duration: 4000,
+        });
+      });
   };
   return (
     <View style={styles.container}>
@@ -138,7 +168,13 @@ const ALoginScreen = () => {
       {/* Login button */}
       <View>
         <CustomButton
-          title="Login"
+          title={
+            loading ? (
+              <ActivityIndicator color="white" style={{ marginLeft: 10 }} />
+            ) : (
+              "Login"
+            )
+          }
           onPress={handleLogin}
           style={styles.loginButtonstyle}
         />

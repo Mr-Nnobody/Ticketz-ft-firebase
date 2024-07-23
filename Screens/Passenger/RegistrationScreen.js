@@ -16,6 +16,7 @@ import { database } from "../../firebase/config";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../../Contexts/UserContext";
 import { setDoc, doc } from "firebase/firestore";
+import { ActivityIndicator } from "react-native";
 
 const RegistrationScreen = () => {
   const navigation = useNavigation();
@@ -27,6 +28,7 @@ const RegistrationScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { user, userId, setUser, setUserId } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
 
   //..
   useEffect(() => {
@@ -63,7 +65,7 @@ const RegistrationScreen = () => {
         });
         return;
       }
-
+      setLoading(true);
       const data = {
         fullName: fullName,
         city: city,
@@ -76,6 +78,25 @@ const RegistrationScreen = () => {
         email,
         password
       );
+
+      // Send verification email
+      sendEmailVerification(userCredential.user)
+        .then(() => {
+          showMessage({
+            message: "Verification email sent. Please check your inbox.",
+            type: "success",
+            duration: 4000,
+          });
+        })
+        .catch((error) => {
+          showMessage({
+            message: "Error sending verification email: " + error.message,
+            type: "danger",
+            duration: 4000,
+          });
+        });
+
+      //
       const uid = userCredential.user.uid;
 
       // Create user document in Firestore
@@ -96,6 +117,7 @@ const RegistrationScreen = () => {
         duration: 6000,
       });
     }
+    setLoading(false);
   };
   const handleLogIn = () => {
     navigation.navigate("LoginScreen");
@@ -177,8 +199,15 @@ const RegistrationScreen = () => {
         <View>
           <CustomButton
             style={styles.signupButtonstyle}
-            title="Create Account"
+            title={
+              loading ? (
+                <ActivityIndicator color="white" style={{ marginLeft: 10 }} />
+              ) : (
+                "Create Account"
+              )
+            }
             onPress={handleSignup}
+            disabled={loading}
           />
         </View>
         <View style={styles.footer}>

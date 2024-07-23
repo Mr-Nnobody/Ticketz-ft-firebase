@@ -1,56 +1,45 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Alert, Platform } from "react-native";
-import { RNCamera } from "react-native-camera";
-import { request, PERMISSIONS, RESULTS } from "react-native-permissions";
+import React, { useState, useEffect, useContext } from "react";
+import { StyleSheet, Text, View, Alert, TouchableOpacity } from "react-native";
+import { BarCodeScanner } from "expo-barcode-scanner";
+import { UserContext } from "../../Contexts/UserContext.js";
 
 const QRCodeScanner = () => {
   const [hasPermission, setHasPermission] = useState(null);
+  const [scanned, setScanned] = useState(false);
+  const { view } = useContext(UserContext);
 
   useEffect(() => {
-    requestCameraPermission();
+    (async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
   }, []);
 
-  const requestCameraPermission = async () => {
+  const handleBarCodeScanned = ({ type, data }) => {
+    setScanned(true);
     try {
-      const result = await request(
-        Platform.OS === "android"
-          ? PERMISSIONS.ANDROID.CAMERA
-          : PERMISSIONS.IOS.CAMERA
-      );
-      if (result === RESULTS.GRANTED) {
-        setHasPermission(true);
+      const ticketData = JSON.parse(data);
+      const { ticketId, agencyId, date, time } = ticketData;
+      if (ticketId === view.id && agencyId === view.agencyID) {
+        Alert.alert("Scanned Successfully", "Ticket is valid.", [
+          { text: "OK", onPress: () => setScanned(false) },
+        ]);
       } else {
-        setHasPermission(false);
+        Alert.alert(
+          "Invalid Ticket",
+          "The scanned ticket does not match the expected data.",
+          [{ text: "OK", onPress: () => setScanned(false) }]
+        );
       }
     } catch (error) {
-      console.error("Error requesting camera permission:", error);
-      setHasPermission(false);
-    }
-  };
-
-  const onBarCodeRead = (scanResult) => {
-    if (scanResult.data != null) {
-      try {
-        const ticketData = JSON.parse(scanResult.data);
-        Alert.alert(
-          "Scanned Successfully",
-          `Ticket Details:\n
-          City: ${ticketData.city}\n
-          Destination: ${ticketData.destination}\n
-          Date: ${new Date(ticketData.date).toLocaleDateString()}\n
-          Time: ${new Date(ticketData.time).toLocaleTimeString()}\n
-          Price: $${ticketData.price}\n
-          Available: ${ticketData.available}`,
-          [{ text: "OK" }]
-        );
-      } catch (error) {
-        Alert.alert("Error", "Invalid QR Code data");
-      }
+      Alert.alert("Error", "Invalid QR Code data", [
+        { text: "OK", onPress: () => setScanned(false) },
+      ]);
     }
   };
 
   if (hasPermission === null) {
-    return <View />;
+    return <Text>Requesting for camera permission</Text>;
   }
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
@@ -58,16 +47,20 @@ const QRCodeScanner = () => {
 
   return (
     <View style={styles.container}>
-      <RNCamera
-        style={styles.preview}
-        type={RNCamera.Constants.Type.back}
-        onBarCodeRead={onBarCodeRead}
-        captureAudio={false}
-      >
-        <View style={styles.rectangleContainer}>
-          <View style={styles.rectangle} />
+      <BarCodeScanner
+        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        style={StyleSheet.absoluteFillObject}
+      />
+      {scanned && (
+        <View style={styles.scanAgainContainer}>
+          <TouchableOpacity
+            style={styles.scanAgainButton}
+            onPress={() => setScanned(false)}
+          >
+            <Text style={styles.scanAgainText}>Tap to Scan Again</Text>
+          </TouchableOpacity>
         </View>
-      </RNCamera>
+      )}
     </View>
   );
 };
@@ -76,25 +69,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "column",
-    backgroundColor: "black",
-  },
-  preview: {
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  rectangleContainer: {
-    flex: 1,
-    alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "transparent",
   },
-  rectangle: {
-    height: 250,
-    width: 250,
-    borderWidth: 2,
-    borderColor: "#00FF00",
-    backgroundColor: "transparent",
+  scanAgainContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scanAgainButton: {
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    padding: 15,
+    borderRadius: 10,
+  },
+  scanAgainText: {
+    color: "white",
+    fontSize: 16,
   },
 });
 

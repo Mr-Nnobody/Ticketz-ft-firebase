@@ -11,6 +11,9 @@ const AViewTicket = () => {
   const handleUpdate = () => {
     //next logic goes here
   };
+  const handleScan = () => {
+    navigation.navigate("ScanCode");
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -64,6 +67,11 @@ const AViewTicket = () => {
         <Text> {view.price} FCFA</Text>
       </View>
       <CustomButton
+        title="Scan this Ticket"
+        onPress={handleScan}
+        style={styles.scanbutton}
+      />
+      <CustomButton
         title="Update"
         onPress={handleUpdate}
         style={styles.button}
@@ -81,8 +89,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEEEEE",
   },
   image: {
-    marginTop: -20,
-    marginBottom: 40,
+    marginTop: -10,
+    marginBottom: 20,
     width: 270,
     height: 200,
     borderRadius: 30,
@@ -108,9 +116,21 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   button: {
-    marginTop: 50,
+    marginTop: 20,
     backgroundColor: "#3498DB",
-    width: 150,
+    width: "90%",
+    color: "white",
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  scanbutton: {
+    marginTop: 30,
+    backgroundColor: "green",
+    width: "90%",
     color: "white",
     padding: 10,
     borderRadius: 10,

@@ -39,6 +39,7 @@ import MoMoPaymentScreen from "./Screens/Passenger/Payment.js";
 import PaymentSceen from "./Screens/Passenger/PaymentSceen.js";
 import QRCodeGenerator from "./Screens/Passenger/QRcode.js";
 import TicketCode from "./Screens/Passenger/TicketCode.js";
+import QRCodeScanner from "./Screens/Agency/ScanCode.js";
 
 // to ensure compatibility
 if (!global.btoa) {
@@ -187,8 +188,8 @@ export default function App() {
           }}
         />
         <Tab.Screen
-          name="Scan"
-          component={ScanTicket}
+          name="ScanCode"
+          component={QRCodeScanner}
           options={{
             tabBarLabel: "Scan",
             headerShown: false,
@@ -276,6 +277,13 @@ export default function App() {
             <Stack.Screen
               name="ASearch"
               component={ASearchScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="ScanCode"
+              component={QRCodeScanner}
               options={{
                 headerShown: false,
               }}

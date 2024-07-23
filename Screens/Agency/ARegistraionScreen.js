@@ -16,6 +16,7 @@ import { showMessage } from "react-native-flash-message";
 import { setDoc, doc } from "firebase/firestore";
 import { database } from "../../firebase/config";
 import { UserContext } from "../../Contexts/UserContext";
+import { ActivityIndicator } from "react-native";
 
 const ARegistrationScreen = ({ navigation }) => {
   const auth = getAuth();
@@ -25,6 +26,7 @@ const ARegistrationScreen = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { auser, auserId, setAuser, setAuserId } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
 
   //..
   useEffect(() => {
@@ -52,11 +54,31 @@ const ARegistrationScreen = ({ navigation }) => {
       });
       return;
     }
+    setLoading(true);
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials._tokenResponse.email;
         const uid = auth.currentUser.uid;
         //const agencyRef = collection(database, "agencies", uid);
+
+        // Send verification email
+        sendEmailVerification(userCredentials.user)
+          .then(() => {
+            showMessage({
+              message: "Verification email sent. Please check your inbox.",
+              type: "success",
+              duration: 4000,
+            });
+          })
+          .catch((error) => {
+            showMessage({
+              message: "Error sending verification email: " + error.message,
+              type: "danger",
+              duration: 4000,
+            });
+          });
+
+        //
         const data = {
           email: user,
           agencyName: agencyName,
@@ -86,6 +108,9 @@ const ARegistrationScreen = ({ navigation }) => {
           type: "danger",
           duration: 6000,
         });
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -166,7 +191,13 @@ const ARegistrationScreen = ({ navigation }) => {
           <View>
             <CustomButton
               style={styles.signupButtonstyle}
-              title="Create Account"
+              title={
+                loading ? (
+                  <ActivityIndicator color="white" style={{ marginLeft: 10 }} />
+                ) : (
+                  "Create Account"
+                )
+              }
               onPress={handleSignup}
             />
           </View>
