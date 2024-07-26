@@ -41,7 +41,7 @@ const AProfileScreen = () => {
         duration: 2000,
       });
       navigation.replace("ALoginScreen");
-      setUser([]);
+      setUser(null);
       setUserId(null);
       setTicket([]);
       setView([]);

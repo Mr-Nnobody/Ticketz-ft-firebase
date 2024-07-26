@@ -7,7 +7,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { database } from "../../firebase/config";
+import { database } from "../../firebase/config.js";
 import { collection, where, query, onSnapshot } from "firebase/firestore";
 import {
   useEffect,
@@ -25,16 +25,7 @@ import { ActivityIndicator } from "react-native";
 const HomeScreen = () => {
   const navigation = useNavigation();
 
-  const {
-    user,
-    setUser,
-    userId,
-    setUserId,
-    setTicket,
-    view,
-    setView,
-    agencies,
-  } = useContext(UserContext);
+  const { user, setTicket, view, setView, agencies } = useContext(UserContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -90,8 +81,8 @@ const HomeScreen = () => {
       setLoading(false);
     });
 
-    console.log(tickets);
-    console.log(agencies);
+    // console.log(tickets);
+    // console.log(agencies);
     return () => {
       unsubscribe();
       // unsubscribeAgencies();

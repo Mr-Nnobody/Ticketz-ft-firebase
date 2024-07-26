@@ -1,5 +1,5 @@
 import { doc, updateDoc } from "firebase/firestore";
-import { database } from "../../firebase/config";
+import { database } from "../../firebase/config.js";
 import { View } from "react-native";
 //implement data passing pproperty to function
 // collect data from view item about item

@@ -21,7 +21,7 @@ const FirstScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("../../assets/ideal_logo.png")}
+        source={require("../../assets/ideal_logo.jpeg")}
         style={styles.Image}
       />
       <Text style={styles.bold}>Ticketz</Text>

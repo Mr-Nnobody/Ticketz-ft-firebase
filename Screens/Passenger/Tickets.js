@@ -20,7 +20,7 @@ import {
   orderBy,
   onSnapshot,
 } from "firebase/firestore";
-import { database } from "../../firebase/config";
+import { database } from "../../firebase/config.js";
 import QRCode from "react-native-qrcode-svg";
 import { ActivityIndicator } from "react-native";
 import { UserContext } from "../../Contexts/UserContext";

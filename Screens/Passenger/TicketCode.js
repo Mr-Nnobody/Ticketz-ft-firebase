@@ -7,7 +7,7 @@ import ViewShot from "react-native-view-shot";
 // import RNFS from "react-native-fs";
 import { useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
-import { database } from "../../firebase/config";
+import { database } from "../../firebase/config.js";
 
 const TicketCode = () => {
   const { user, userId, view } = useContext(UserContext);

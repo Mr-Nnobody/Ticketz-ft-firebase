@@ -5,7 +5,7 @@ import CustomButton from "../../components/CustomButton";
 import { showMessage } from "react-native-flash-message";
 import { useNavigation } from "@react-navigation/native";
 import { doc, collection, setDoc, serverTimestamp } from "firebase/firestore";
-import { database } from "../../firebase/config";
+import { database } from "../../firebase/config.js";
 
 const PaymentSceen = () => {
   const navigation = useNavigation();

@@ -4,11 +4,13 @@
     "slug": "Ticketz",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/ideal_logo.png",
+    "icon": "./assets/ideal_logo.jpeg",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets.splash.png",
       "resizeMode": "contain",
+      "width": 100,
+      "height": 100,
       "backgroundColor": "#ffffff"
     },
     "ios": {
@@ -16,12 +18,18 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/ideal_logo.jpeg",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.nnobody.Ticketz"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "10efb618-2a8e-4194-8c33-3717e2bdba59"
+      }
     }
   }
 }

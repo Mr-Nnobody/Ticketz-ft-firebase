@@ -7,7 +7,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { database } from "../../firebase/config";
+import { database } from "../../firebase/config.js";
 import { collection, where, query, onSnapshot } from "firebase/firestore";
 import {
   useEffect,

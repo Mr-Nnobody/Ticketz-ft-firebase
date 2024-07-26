@@ -9,10 +9,14 @@ import {
 } from "react-native";
 import CustomButton from "../../components/CustomButton";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { showMessage } from "react-native-flash-message";
-import { database } from "../../firebase/config";
+import { database } from "../../firebase/config.js";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../../Contexts/UserContext";
 import { setDoc, doc } from "firebase/firestore";
@@ -41,37 +45,36 @@ const RegistrationScreen = () => {
   const handleSignup = async () => {
     // registration logic here
 
+    // Validation checks
+    if (
+      email === "" ||
+      password === "" ||
+      fullName === "" ||
+      city === "" ||
+      confirmPassword === ""
+    ) {
+      showMessage({
+        message: "Please Enter all Fields",
+        type: "danger",
+        duration: 4000,
+      });
+      return;
+    }
+    if (password !== confirmPassword) {
+      showMessage({
+        message: "Passwords don't match",
+        type: "danger",
+        duration: 2000,
+      });
+      return;
+    }
+    setLoading(true);
+    const data = {
+      fullName: fullName,
+      city: city,
+      email: email,
+    };
     try {
-      // Validation checks
-      if (
-        email === "" ||
-        password === "" ||
-        fullName === "" ||
-        city === "" ||
-        confirmPassword === ""
-      ) {
-        showMessage({
-          message: "Please Enter all Fields",
-          type: "danger",
-          duration: 4000,
-        });
-        return;
-      }
-      if (password !== confirmPassword) {
-        showMessage({
-          message: "Passwords don't match",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
-      setLoading(true);
-      const data = {
-        fullName: fullName,
-        city: city,
-        email: email,
-      };
-
       // Create user in Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -128,7 +131,7 @@ const RegistrationScreen = () => {
       <View style={styles.container}>
         <Image
           style={styles.image}
-          source={require("../../assets/ideal_logo.png")}
+          source={require("../../assets/ideal_logo.jpeg")}
         />
         <View>
           <TextInput

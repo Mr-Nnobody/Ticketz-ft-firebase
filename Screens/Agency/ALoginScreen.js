@@ -11,7 +11,7 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons"; //import the eye icon
 import CustomButton from "../../components/CustomButton";
 import { showMessage } from "react-native-flash-message";
-import { database } from "../../firebase/config";
+import { database } from "../../firebase/config.js";
 import { getDoc, doc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../../Contexts/UserContext";
@@ -122,7 +122,7 @@ const ALoginScreen = () => {
     <View style={styles.container}>
       {/* header image */}
       <ImageBackground
-        source={require("../../assets/ideal_logo.png")}
+        source={require("../../assets/ideal_logo.jpeg")}
         style={styles.Image}
       />
       <View>

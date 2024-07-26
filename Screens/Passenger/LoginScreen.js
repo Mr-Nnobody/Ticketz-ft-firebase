@@ -16,7 +16,7 @@ import {
 } from "firebase/auth";
 import { showMessage } from "react-native-flash-message";
 import { collection, onSnapshot, getDoc, doc } from "firebase/firestore";
-import { database } from "../../firebase/config";
+import { database } from "../../firebase/config.js";
 import { UserContext } from "../../Contexts/UserContext";
 import { ActivityIndicator } from "react-native";
 
@@ -142,7 +142,7 @@ const LoginScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* header image */}
       <ImageBackground
-        source={require("../../assets/ideal_logo.png")}
+        source={require("../../assets/ideal_logo.jpeg")}
         style={styles.Image}
       />
       <View>

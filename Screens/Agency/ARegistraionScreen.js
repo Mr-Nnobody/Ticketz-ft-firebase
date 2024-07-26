@@ -10,11 +10,15 @@ import {
 } from "react-native";
 import CustomButton from "../../components/CustomButton";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { showMessage } from "react-native-flash-message";
 import { setDoc, doc } from "firebase/firestore";
-import { database } from "../../firebase/config";
+import { database } from "../../firebase/config.js";
 import { UserContext } from "../../Contexts/UserContext";
 import { ActivityIndicator } from "react-native";
 
@@ -55,63 +59,72 @@ const ARegistrationScreen = ({ navigation }) => {
       return;
     }
     setLoading(true);
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredentials) => {
-        const user = userCredentials._tokenResponse.email;
-        const uid = auth.currentUser.uid;
-        //const agencyRef = collection(database, "agencies", uid);
+    try {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredentials) => {
+          const user = userCredentials._tokenResponse.email;
+          const uid = auth.currentUser.uid;
+          //const agencyRef = collection(database, "agencies", uid);
 
-        // Send verification email
-        sendEmailVerification(userCredentials.user)
-          .then(() => {
-            showMessage({
-              message: "Verification email sent. Please check your inbox.",
-              type: "success",
-              duration: 4000,
+          // Send verification email
+          sendEmailVerification(userCredentials.user)
+            .then(() => {
+              showMessage({
+                message: "Verification email sent. Please check your inbox.",
+                type: "success",
+                duration: 4000,
+              });
+            })
+            .catch((error) => {
+              showMessage({
+                message: "Error sending verification email: " + error.message,
+                type: "danger",
+                duration: 4000,
+              });
+              return;
             });
-          })
-          .catch((error) => {
-            showMessage({
-              message: "Error sending verification email: " + error.message,
-              type: "danger",
-              duration: 4000,
-            });
-          });
 
-        //
-        const data = {
-          email: user,
-          agencyName: agencyName,
-        };
-        setDoc(doc(database, "agencies", uid), data)
-          .then((documents) => {
-            showMessage({
-              message: "Account Created Successfully",
-              type: "success",
-              duration: 4000,
+          //
+          const data = {
+            email: user,
+            agencyName: agencyName,
+          };
+          setDoc(doc(database, "agencies", uid), data)
+            .then((documents) => {
+              showMessage({
+                message: "Account Created Successfully",
+                type: "success",
+                duration: 4000,
+              });
+              setUserId(uid);
+              setUser(documents.data());
+              navigation.replace("Amain");
+            })
+            .catch((error) => {
+              showMessage({
+                message: "Error creating db account: " + error.message,
+                type: "danger",
+                duration: 6000,
+              });
             });
-            setUserId(uid);
-            setUser(documents.data());
-            navigation.replace("Amain");
-          })
-          .catch((error) => {
-            showMessage({
-              message: "Error creating db account: " + error.message,
-              type: "danger",
-              duration: 6000,
-            });
+        })
+        .catch((error) => {
+          showMessage({
+            message: "Error creating account: " + error.message,
+            type: "danger",
+            duration: 6000,
           });
-      })
-      .catch((error) => {
-        showMessage({
-          message: "Error creating account: " + error.message,
-          type: "danger",
-          duration: 6000,
+        })
+        .finally(() => {
+          setLoading(false);
         });
-      })
-      .finally(() => {
-        setLoading(false);
+    } catch (error) {
+      showMessage({
+        message: "Error: " + error.message,
+        type: "danger",
+        duration: 6000,
       });
+    }
   };
 
   const handleLogIn = () => {
@@ -126,7 +139,7 @@ const ARegistrationScreen = ({ navigation }) => {
         <View style={styles.container}>
           <Image
             style={styles.image}
-            source={require("../../assets/ideal_logo.png")}
+            source={require("../../assets/ideal_logo.jpeg")}
           />
 
           <View>

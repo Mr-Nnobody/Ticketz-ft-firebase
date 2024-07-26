@@ -1,7 +1,9 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useEffect } from "react";
+import { getAuth } from "firebase/auth";
 
 //....
 const UserContext = createContext();
+const auth = getAuth();
 
 const UserProvider = ({ children }) => {
   //agency personnel data
@@ -18,6 +20,19 @@ const UserProvider = ({ children }) => {
   const [ticket, setTicket] = useState([]);
   //agency data for quick agency name display
   const [agencies, setAgencies] = useState([]);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+      } else {
+        setUser([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <UserContext.Provider
       value={{
