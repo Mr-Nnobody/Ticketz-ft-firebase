@@ -1,13 +1,8 @@
 ## Ticketz
-<p align=center>
-  Ticketz is a mobile application that facilates purchasing of bus tickets, automating purchases, verification and validation of tickets and boarding of buses. Providing convenience amd comfort for both the public transport companies and users. 
-  This app makes use of QR Code technology for easy purchase, verification and validation of bus tickets.
-</p>
-# Smart Bus Ticketing System
 
 **Description:**
 
-This repository contains the source code for a mobile application that provides a convenient and efficient way for passengers to purchase bus tickets and for bus agencies to manage routes and fares. The app features QR code-based ticket validation, secure payment integration, and a user-friendly interface.
+This repository contains the source code for a mobile application that provides a convenient and efficient way for passengers to purchase bus tickets avoiding queues etc. and for bus agencies to manage routes and fares. The app features QR code-based ticket validation, secure payment integration, and a user-friendly interface.
 
 **Key Features:**
 
@@ -20,7 +15,7 @@ This repository contains the source code for a mobile application that provides 
 
 1. **Clone the repository:**
    ```bash
-    git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
+    git clone ![https://github.com/Mr-Nnobody/Ticketz-ft-firebase.git](https://github.com/your-username/your-repo-name.git)
 
 
 
