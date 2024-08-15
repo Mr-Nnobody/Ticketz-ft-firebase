@@ -1,6 +1,6 @@
 ## **Ticketz**
 
-## **Description:**
+**Description:**
 
 <p>This repository contains the source code for a mobile application that provides a convenient and efficient way for passengers to purchase bus tickets avoiding queues etc. and for bus agencies to manage routes and fares. The app features QR code-based ticket validation, secure payment integration, and a user-friendly interface.</p>
 
@@ -11,7 +11,7 @@
 * Secure payment integration.
 * QR code-based ticket validation.
 
-**Getting Started:**
+## **Getting Started:**
 
 1. **Clone the repository:**
    ```bash
